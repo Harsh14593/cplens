@@ -12,7 +12,7 @@ HEADERS = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleW
 
 @router.get("/user/{username}")
 async def get_user(username: str):
-    async with httpx.AsyncClient(follow_redirects=True, timeout=15) as client:
+    async with httpx.AsyncClient(follow_redirects=True, timeout=30) as client:
         r = await client.get(f"{CC_BASE}/users/{username}", headers=HEADERS)
     if r.status_code == 404:
         raise HTTPException(status_code=404, detail="User not found")
@@ -22,7 +22,7 @@ async def get_user(username: str):
 
 @router.get("/analyze/{username}")
 async def analyze(username: str):
-    async with httpx.AsyncClient(follow_redirects=True, timeout=15) as client:
+    async with httpx.AsyncClient(follow_redirects=True, timeout=30) as client:
         r = await client.get(f"{CC_BASE}/users/{username}", headers=HEADERS)
     if r.status_code == 404:
         raise HTTPException(status_code=404, detail="User not found")
@@ -80,24 +80,52 @@ def _parse_profile(soup, username: str) -> dict:
 
 
 def _parse_rating_history(html: str) -> list:
-    # CodeChef embeds rating history as a JS variable in the page
-    match = re.search(r"var\s+all_rating\s*=\s*(\[.*?\]);", html, re.DOTALL)
-    if not match:
-        # try alternate pattern
-        match = re.search(r'"all_rating"\s*:\s*(\[.*?\])', html, re.DOTALL)
-    if not match:
-        return []
+    # Try Next.js __NEXT_DATA__ first (current CodeChef)
+    next_match = re.search(r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', html, re.DOTALL)
+    if next_match:
+        try:
+            next_data = json.loads(next_match.group(1))
+            # navigate into the props tree to find rating history
+            user_details = (
+                next_data.get("props", {})
+                .get("pageProps", {})
+                .get("userDetails", {})
+            )
+            history = user_details.get("ratingHistory") or user_details.get("rating_history") or []
+            if history:
+                return [
+                    {
+                        "contest": h.get("name") or h.get("contest_name", ""),
+                        "rating": int(h.get("rating", 0)),
+                        "rank": int(h.get("rank", 0)),
+                        "date": h.get("end_date", ""),
+                    }
+                    for h in history if h.get("rating")
+                ]
+            # search deeper for any list with rating fields
+            raw = json.dumps(next_data)
+            arr_match = re.search(r'(\[(?:\{[^}]*"rating"[^}]*\}[,\s]*)+\])', raw)
+            if arr_match:
+                candidates = json.loads(arr_match.group(1))
+                if candidates and "rating" in candidates[0]:
+                    return [{"contest": c.get("name", ""), "rating": int(c["rating"]), "rank": int(c.get("rank", 0))} for c in candidates if c.get("rating")]
+        except Exception:
+            pass
 
-    try:
-        data = json.loads(match.group(1))
-        return [
-            {
-                "contest": d.get("name", ""),
-                "rating": int(d.get("rating", 0)),
-                "rank": int(d.get("rank", 0)),
-                "date": f"{d.get('getyear','')}-{d.get('getmonth','').zfill(2)}-{d.get('getday','').zfill(2)}",
-            }
-            for d in data if d.get("rating")
-        ]
-    except Exception:
-        return []
+    # CodeChef embeds all_rating as a JS variable
+    match = re.search(r"var\s+all_rating\s*=\s*(\[[\s\S]*?\])\s*;", html)
+    if match:
+        try:
+            data = json.loads(match.group(1))
+            return [
+                {
+                    "contest": d.get("name", ""),
+                    "rating": int(d.get("rating", 0)),
+                    "rank": int(d.get("rank", 0)),
+                    "date": d.get("end_date", ""),
+                }
+                for d in data if d.get("rating")
+            ]
+        except Exception:
+            pass
+    return []
