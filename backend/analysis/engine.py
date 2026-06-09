@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import datetime, timezone, timedelta
 
 
 def analyze_codeforces(submissions: list, contests: list) -> dict:
@@ -39,6 +40,7 @@ def analyze_codeforces(submissions: list, contests: list) -> dict:
         "time_pressure_analysis": dict(time_buckets),
         "verdict_summary": dict(verdict_counts),
         "rating_trend": rating_trend,
+        "activity": _build_activity(submissions),
         "insights": _generate_insights(weak_tags, time_buckets, rating_buckets),
     }
 
@@ -61,6 +63,20 @@ def analyze_leetcode(user: dict) -> dict:
         "acceptance_by_difficulty": ac_stats,
         "insights": [f"You've solved very few '{t}' problems — focus here" for t in weak_tags],
     }
+
+
+def _build_activity(submissions: list) -> dict:
+    cutoff = datetime.now(timezone.utc) - timedelta(days=365)
+    activity = {}
+    for sub in submissions:
+        ts = sub.get("creationTimeSeconds", 0)
+        if not ts:
+            continue
+        dt = datetime.fromtimestamp(ts, tz=timezone.utc)
+        if dt >= cutoff:
+            date_str = dt.strftime("%Y-%m-%d")
+            activity[date_str] = activity.get(date_str, 0) + 1
+    return activity
 
 
 def _rating_bucket(rating: int) -> str:

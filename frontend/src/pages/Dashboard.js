@@ -12,6 +12,7 @@ import CCRatingChart from "../components/CCRatingChart";
 import LCProblemsChart from "../components/LCProblemsChart";
 import CPScore, { computeCPScore } from "../components/CPScore";
 import SkillRadar from "../components/SkillRadar";
+import ActivityHeatmap from "../components/ActivityHeatmap";
 import RecentSolved from "../components/RecentSolved";
 import styles from "./Dashboard.module.css";
 
@@ -190,6 +191,12 @@ export default function Dashboard() {
                   <SkillRadar cfTagStats={data.cf.tag_analysis} />
                 </div>
               )}
+              {data.cf?.activity && (
+                <div className={`${styles.card} ${styles.fullWidth}`}>
+                  <h2>Submission Activity</h2>
+                  <ActivityHeatmap activity={data.cf.activity} />
+                </div>
+              )}
             </div>
           </>
         )}
@@ -220,6 +227,12 @@ export default function Dashboard() {
                 <div className={`${styles.card} ${styles.fullWidth}`}>
                   <h2>Weak Topics</h2>
                   <WeakTags tags={data.cf.weak_tags} />
+                </div>
+              )}
+              {data.cf?.activity && (
+                <div className={`${styles.card} ${styles.fullWidth}`}>
+                  <h2>Submission Activity</h2>
+                  <ActivityHeatmap activity={data.cf.activity} />
                 </div>
               )}
             </div>
