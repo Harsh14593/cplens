@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { analyzeCodeforces, analyzeLeetcode, analyzeCodechef, getCFUser, getCFContests, getRecommendations } from "../api";
+import { analyzeCodeforces, analyzeLeetcode, analyzeCodechef, getCFUser, getCFContests, getCFRecommendations, getLCRecommendations, getCCRecommendations } from "../api";
 import RatingChart from "../components/RatingChart";
 import WeakTags from "../components/WeakTags";
 import Insights from "../components/Insights";
@@ -18,7 +18,7 @@ export default function Dashboard() {
   const lcUsername = params.get("leetcode");
   const ccUsername = params.get("codechef");
 
-  const [data, setData] = useState({ cf: null, lc: null, cc: null, user: null, contests: null, recs: null });
+  const [data, setData] = useState({ cf: null, lc: null, cc: null, user: null, contests: null, cfRecs: null, lcRecs: null, ccRecs: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
@@ -31,16 +31,20 @@ export default function Dashboard() {
           lcUsername ? analyzeLeetcode(lcUsername) : Promise.resolve(null),
           cfHandle ? getCFUser(cfHandle) : Promise.resolve(null),
           cfHandle ? getCFContests(cfHandle) : Promise.resolve(null),
-          cfHandle ? getRecommendations(cfHandle) : Promise.resolve(null),
+          cfHandle ? getCFRecommendations(cfHandle) : Promise.resolve(null),
           ccUsername ? analyzeCodechef(ccUsername) : Promise.resolve(null),
+          lcUsername ? getLCRecommendations(lcUsername) : Promise.resolve(null),
+          ccUsername ? getCCRecommendations(ccUsername) : Promise.resolve(null),
         ]);
         setData({
           cf: results[0].value?.data ?? null,
           lc: results[1].value?.data ?? null,
           user: results[2].value?.data ?? null,
           contests: results[3].value?.data ?? null,
-          recs: results[4].value?.data ?? null,
+          cfRecs: results[4].value?.data ?? null,
           cc: results[5].value?.data ?? null,
+          lcRecs: results[6].value?.data ?? null,
+          ccRecs: results[7].value?.data ?? null,
         });
       } catch (e) {
         setError("Failed to fetch data. Check your handles and try again.");
@@ -147,7 +151,9 @@ export default function Dashboard() {
             </div>
 
             {allInsights.length > 0 && <Insights insights={allInsights} />}
-            {data.recs?.recommendations?.length > 0 && <Recommendations recommendations={data.recs.recommendations} />}
+            {data.cfRecs?.recommendations?.length > 0 && <Recommendations title="Codeforces Recommendations" recommendations={data.cfRecs.recommendations} />}
+            {data.lcRecs?.recommendations?.length > 0 && <Recommendations title="LeetCode Recommendations" recommendations={data.lcRecs.recommendations} />}
+            {data.ccRecs?.recommendations?.length > 0 && <Recommendations title="CodeChef Practice" recommendations={data.ccRecs.recommendations} />}
 
             <div className={styles.grid}>
               {data.cf?.rating_trend?.length > 0 && (
@@ -187,10 +193,10 @@ export default function Dashboard() {
                   <WeakTags tags={data.cf.weak_tags} />
                 </div>
               )}
-              {data.recs?.recommendations?.length > 0 && (
+              {data.cfRecs?.recommendations?.length > 0 && (
                 <div className={`${styles.card} ${styles.fullWidth}`}>
                   <h2>Recommended Problems</h2>
-                  <Recommendations recommendations={data.recs.recommendations} />
+                  <Recommendations recommendations={data.cfRecs.recommendations} />
                 </div>
               )}
             </div>
@@ -225,6 +231,12 @@ export default function Dashboard() {
                   <WeakTags tags={data.lc.weak_tags.map(t => ({ tag: t, accuracy: 0 }))} />
                 </div>
               )}
+              {data.lcRecs?.recommendations?.length > 0 && (
+                <div className={`${styles.card} ${styles.fullWidth}`}>
+                  <h2>Recommended Problems</h2>
+                  <Recommendations recommendations={data.lcRecs.recommendations} />
+                </div>
+              )}
               {data.lc?.recent_solved?.length > 0 && (
                 <div className={styles.card}>
                   <h2>Recently Solved</h2>
@@ -246,6 +258,12 @@ export default function Dashboard() {
                   {data.cc.country_rank && <div style={{ color: "#94a3b8" }}>Country Rank: <span style={{ color: "#e2e8f0", fontWeight: 600 }}>{data.cc.country_rank}</span></div>}
                   {data.cc.problems_solved > 0 && <div style={{ color: "#94a3b8" }}>Problems Solved: <span style={{ color: "#e2e8f0", fontWeight: 600 }}>{data.cc.problems_solved}</span></div>}
                 </div>
+              </div>
+            )}
+            {data.ccRecs?.recommendations?.length > 0 && (
+              <div className={styles.card}>
+                <h2>Practice Links</h2>
+                <Recommendations recommendations={data.ccRecs.recommendations} />
               </div>
             )}
           </div>
