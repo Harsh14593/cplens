@@ -1,0 +1,17 @@
+.card {
+  background: #1e2330;
+  border: 1px solid #2d3748;
+  border-top: 3px solid;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.platform { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.stat { display: flex; flex-direction: column; gap: 4px; }
+
+.label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.value { font-size: 18px; font-weight: 700; }

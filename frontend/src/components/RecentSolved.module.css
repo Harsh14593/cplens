@@ -1,0 +1,8 @@
+.list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+.item { display: flex; align-items: center; gap: 10px; }
+
+.dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
+
+.link { font-size: 14px; color: #e2e8f0; text-decoration: none; transition: color 0.2s; }
+.link:hover { color: #a5b4fc; }
