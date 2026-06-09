@@ -8,6 +8,7 @@ import Recommendations from "../components/Recommendations";
 import DifficultyChart from "../components/DifficultyChart";
 import PlatformCard from "../components/PlatformCard";
 import LCContestChart from "../components/LCContestChart";
+import CCRatingChart from "../components/CCRatingChart";
 import RecentSolved from "../components/RecentSolved";
 import styles from "./Dashboard.module.css";
 
@@ -144,7 +145,7 @@ export default function Dashboard() {
                     { label: "Rating", value: data.cc.rating ?? "—" },
                     { label: "Stars", value: data.cc.stars ?? "—" },
                     { label: "Global Rank", value: data.cc.global_rank ?? "—" },
-                    { label: "Country Rank", value: data.cc.country_rank ?? "—" },
+                    { label: "Contests", value: data.cc.contests_participated ?? "—" },
                   ]}
                 />
               )}
@@ -252,16 +253,27 @@ export default function Dashboard() {
             {data.cc && (
               <div className={styles.card}>
                 <h2>Profile</h2>
-                <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 12 }}>
-                  <div style={{ fontSize: 48, fontWeight: 800, color: "#22c55e" }}>{data.cc.rating} <span style={{ fontSize: 20, color: "#94a3b8" }}>{data.cc.stars}</span></div>
-                  {data.cc.global_rank && <div style={{ color: "#94a3b8" }}>Global Rank: <span style={{ color: "#e2e8f0", fontWeight: 600 }}>{data.cc.global_rank}</span></div>}
-                  {data.cc.country_rank && <div style={{ color: "#94a3b8" }}>Country Rank: <span style={{ color: "#e2e8f0", fontWeight: 600 }}>{data.cc.country_rank}</span></div>}
-                  {data.cc.problems_solved > 0 && <div style={{ color: "#94a3b8" }}>Problems Solved: <span style={{ color: "#e2e8f0", fontWeight: 600 }}>{data.cc.problems_solved}</span></div>}
+                <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 12 }}>
+                  <div style={{ fontSize: 48, fontWeight: 800, color: "#22c55e" }}>
+                    {data.cc.rating} <span style={{ fontSize: 20, color: "#94a3b8" }}>{data.cc.stars}</span>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                    {data.cc.global_rank && <div><div style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px" }}>Global Rank</div><div style={{ fontSize: 20, fontWeight: 700 }}>{data.cc.global_rank}</div></div>}
+                    {data.cc.country_rank && <div><div style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px" }}>Country Rank</div><div style={{ fontSize: 20, fontWeight: 700 }}>{data.cc.country_rank}</div></div>}
+                    {data.cc.contests_participated && <div><div style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px" }}>Contests</div><div style={{ fontSize: 20, fontWeight: 700 }}>{data.cc.contests_participated}</div></div>}
+                    {data.cc.problems_solved > 0 && <div><div style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px" }}>Problems Solved</div><div style={{ fontSize: 20, fontWeight: 700 }}>{data.cc.problems_solved}</div></div>}
+                  </div>
                 </div>
               </div>
             )}
-            {data.ccRecs?.recommendations?.length > 0 && (
+            {data.cc?.rating_history?.length > 0 && (
               <div className={styles.card}>
+                <h2>Rating History</h2>
+                <CCRatingChart data={data.cc.rating_history} />
+              </div>
+            )}
+            {data.ccRecs?.recommendations?.length > 0 && (
+              <div className={`${styles.card} ${styles.fullWidth}`}>
                 <h2>Practice Links</h2>
                 <Recommendations recommendations={data.ccRecs.recommendations} />
               </div>

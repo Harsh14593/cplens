@@ -137,7 +137,6 @@ async def get_cc_recommendations(username: str):
             "tag": t["tag"],
             "name": f"Practice {t['tag']} ({difficulty} level)",
             "url": t["url"],
-            "rating": rating,
             "platform": "codechef",
         }
         for t in topics

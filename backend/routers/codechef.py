@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 import httpx
 from bs4 import BeautifulSoup
 import re
+import json
 
 router = APIRouter()
 
@@ -13,10 +14,8 @@ HEADERS = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleW
 async def get_user(username: str):
     async with httpx.AsyncClient(follow_redirects=True, timeout=15) as client:
         r = await client.get(f"{CC_BASE}/users/{username}", headers=HEADERS)
-
     if r.status_code == 404:
         raise HTTPException(status_code=404, detail="User not found")
-
     soup = BeautifulSoup(r.text, "html.parser")
     return _parse_profile(soup, username)
 
@@ -25,21 +24,20 @@ async def get_user(username: str):
 async def analyze(username: str):
     async with httpx.AsyncClient(follow_redirects=True, timeout=15) as client:
         r = await client.get(f"{CC_BASE}/users/{username}", headers=HEADERS)
-
     if r.status_code == 404:
         raise HTTPException(status_code=404, detail="User not found")
 
     soup = BeautifulSoup(r.text, "html.parser")
     profile = _parse_profile(soup, username)
+    rating_history = _parse_rating_history(r.text)
 
     insights = []
     if profile.get("stars"):
-        stars = profile["stars"]
-        insights.append(f"You are a {stars} on CodeChef — keep solving to reach the next star")
+        insights.append(f"You are a {profile['stars']} on CodeChef — keep solving to reach the next star")
     if profile.get("global_rank"):
         insights.append(f"Your global rank is {profile['global_rank']} — top percentile performance")
 
-    return {**profile, "insights": insights}
+    return {**profile, "rating_history": rating_history, "insights": insights}
 
 
 def _parse_profile(soup, username: str) -> dict:
@@ -66,13 +64,40 @@ def _parse_profile(soup, username: str) -> dict:
             break
 
     if "problems_solved" not in result:
-        all_text = soup.get_text()
-        match = re.search(r"(\d+)\s*(?:fully\s+)?solved", all_text, re.IGNORECASE)
+        match = re.search(r"(\d+)\s*(?:fully\s+)?solved", soup.get_text(), re.IGNORECASE)
         if match:
             result["problems_solved"] = int(match.group(1))
 
-    contest_list = soup.select(".contest-participated-count b")
-    if contest_list:
-        result["contests_participated"] = int(contest_list[0].text.strip())
+    # contests participated
+    contest_els = soup.select(".contest-participated-count b")
+    if contest_els:
+        try:
+            result["contests_participated"] = int(contest_els[0].text.strip())
+        except ValueError:
+            pass
 
     return result
+
+
+def _parse_rating_history(html: str) -> list:
+    # CodeChef embeds rating history as a JS variable in the page
+    match = re.search(r"var\s+all_rating\s*=\s*(\[.*?\]);", html, re.DOTALL)
+    if not match:
+        # try alternate pattern
+        match = re.search(r'"all_rating"\s*:\s*(\[.*?\])', html, re.DOTALL)
+    if not match:
+        return []
+
+    try:
+        data = json.loads(match.group(1))
+        return [
+            {
+                "contest": d.get("name", ""),
+                "rating": int(d.get("rating", 0)),
+                "rank": int(d.get("rank", 0)),
+                "date": f"{d.get('getyear','')}-{d.get('getmonth','').zfill(2)}-{d.get('getday','').zfill(2)}",
+            }
+            for d in data if d.get("rating")
+        ]
+    except Exception:
+        return []
