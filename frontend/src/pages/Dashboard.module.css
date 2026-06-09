@@ -50,6 +50,8 @@
 
 .fullWidth { grid-column: 1 / -1; }
 
+.recsRow { display: flex; flex-direction: column; gap: 16px; margin-top: 8px; }
+
 .card {
   background: #1e2330;
   border-radius: 12px;

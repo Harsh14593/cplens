@@ -152,9 +152,13 @@ export default function Dashboard() {
             </div>
 
             {allInsights.length > 0 && <Insights insights={allInsights} />}
-            {data.cfRecs?.recommendations?.length > 0 && <Recommendations title="Codeforces Recommendations" recommendations={data.cfRecs.recommendations} />}
-            {data.lcRecs?.recommendations?.length > 0 && <Recommendations title="LeetCode Recommendations" recommendations={data.lcRecs.recommendations} />}
-            {data.ccRecs?.recommendations?.length > 0 && <Recommendations title="CodeChef Practice" recommendations={data.ccRecs.recommendations} />}
+            {(data.cfRecs?.recommendations?.length > 0 || data.lcRecs?.recommendations?.length > 0 || data.ccRecs?.recommendations?.length > 0) && (
+              <div className={styles.recsRow}>
+                {data.cfRecs?.recommendations?.length > 0 && <Recommendations title="Codeforces" recommendations={data.cfRecs.recommendations} />}
+                {data.lcRecs?.recommendations?.length > 0 && <Recommendations title="LeetCode" recommendations={data.lcRecs.recommendations} />}
+                {data.ccRecs?.recommendations?.length > 0 && <Recommendations title="CodeChef Practice" recommendations={data.ccRecs.recommendations} />}
+              </div>
+            )}
 
             <div className={styles.grid}>
               {data.cf?.rating_trend?.length > 0 && (
@@ -195,9 +199,8 @@ export default function Dashboard() {
                 </div>
               )}
               {data.cfRecs?.recommendations?.length > 0 && (
-                <div className={`${styles.card} ${styles.fullWidth}`}>
-                  <h2>Recommended Problems</h2>
-                  <Recommendations recommendations={data.cfRecs.recommendations} />
+                <div className={styles.fullWidth}>
+                  <Recommendations recommendations={data.cfRecs.recommendations} title="Recommended Problems" />
                 </div>
               )}
             </div>
@@ -215,27 +218,36 @@ export default function Dashboard() {
               )}
               {data.lc?.profile?.ac_stats && (
                 <div className={styles.card}>
-                  <h2>Problems Solved by Difficulty</h2>
-                  <div style={{ display: "flex", gap: 24, marginTop: 16, justifyContent: "center" }}>
+                  <h2>Problems Solved</h2>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, marginTop: 20 }}>
                     {data.lc.profile.ac_stats.filter(s => s.difficulty !== "All").map((s, i) => (
-                      <div key={i} style={{ textAlign: "center" }}>
-                        <div style={{ fontSize: 32, fontWeight: 700, color: diffColor(s.difficulty) }}>{s.count}</div>
-                        <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>{s.difficulty}</div>
+                      <div key={i} style={{ background: "#0f1117", borderRadius: 10, padding: "16px", textAlign: "center", border: "1px solid #2d3748" }}>
+                        <div style={{ fontSize: 36, fontWeight: 800, color: diffColor(s.difficulty) }}>{s.count}</div>
+                        <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>{s.difficulty}</div>
                       </div>
                     ))}
                   </div>
+                  {data.lc.profile.ac_stats.find(s => s.difficulty === "All") && (
+                    <div style={{ marginTop: 16, textAlign: "center", color: "#64748b", fontSize: 13 }}>
+                      {data.lc.profile.ac_stats.find(s => s.difficulty === "All").count} total solved
+                    </div>
+                  )}
                 </div>
               )}
               {data.lc?.weak_tags?.length > 0 && (
                 <div className={styles.card}>
-                  <h2>Weak Topics</h2>
-                  <WeakTags tags={data.lc.weak_tags.map(t => ({ tag: t, accuracy: 0 }))} />
-                </div>
-              )}
-              {data.lcRecs?.recommendations?.length > 0 && (
-                <div className={`${styles.card} ${styles.fullWidth}`}>
-                  <h2>Recommended Problems</h2>
-                  <Recommendations recommendations={data.lcRecs.recommendations} />
+                  <h2>Least Practiced Topics</h2>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 4 }}>
+                    {data.lc.weak_tags.map((t, i) => (
+                      <a key={i} href={`https://leetcode.com/tag/${t.toLowerCase().replace(/\s+/g, "-")}`} target="_blank" rel="noreferrer"
+                        style={{ padding: "6px 14px", background: "#0f1117", border: "1px solid #2d3748", borderRadius: 99, fontSize: 13, color: "#e2e8f0", textDecoration: "none", transition: "border-color 0.2s" }}
+                        onMouseOver={e => e.currentTarget.style.borderColor = "#f59e0b"}
+                        onMouseOut={e => e.currentTarget.style.borderColor = "#2d3748"}
+                      >
+                        {t}
+                      </a>
+                    ))}
+                  </div>
                 </div>
               )}
               {data.lc?.recent_solved?.length > 0 && (
@@ -245,6 +257,9 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
+            {data.lcRecs?.recommendations?.length > 0 && (
+              <Recommendations recommendations={data.lcRecs.recommendations} title="Recommended Problems" />
+            )}
           </>
         )}
 
