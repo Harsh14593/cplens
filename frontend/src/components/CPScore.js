@@ -7,55 +7,111 @@ const TIERS = [
   { min: 0,    label: "Beginner",    color: "#64748b" },
 ];
 
+const PLATFORMS = [
+  { key: "cf",  label: "Codeforces", color: "#6366f1", weight: 0.4, max: 2800, weightLabel: "40%" },
+  { key: "lc",  label: "LeetCode",   color: "#f59e0b", weight: 0.4, max: 2800, weightLabel: "40%" },
+  { key: "cc",  label: "CodeChef",   color: "#22c55e", weight: 0.2, max: 2500, weightLabel: "20%" },
+];
+
 export function computeCPScore({ user, lc, cc }) {
   const entries = [];
-  if (user?.rating)                 entries.push({ norm: Math.min(user.rating, 2800) / 2800,          weight: 0.4 });
-  if (lc?.contest_ranking?.rating)  entries.push({ norm: Math.min(lc.contest_ranking.rating, 2800) / 2800, weight: 0.4 });
-  if (cc?.rating)                   entries.push({ norm: Math.min(cc.rating, 2500) / 2500,             weight: 0.2 });
+  if (user?.rating)                entries.push({ norm: Math.min(user.rating, 2800) / 2800,               weight: 0.4 });
+  if (lc?.contest_ranking?.rating) entries.push({ norm: Math.min(lc.contest_ranking.rating, 2800) / 2800, weight: 0.4 });
+  if (cc?.rating)                  entries.push({ norm: Math.min(cc.rating, 2500) / 2500,                 weight: 0.2 });
   if (!entries.length) return null;
   const totalWeight = entries.reduce((a, e) => a + e.weight, 0);
   const weighted    = entries.reduce((a, e) => a + e.norm * e.weight, 0);
   return Math.round((weighted / totalWeight) * 3000);
 }
 
-export default function CPScore({ score }) {
+export function buildBreakdown({ user, lc, cc }) {
+  return [
+    { ...PLATFORMS[0], rating: user?.rating ?? null },
+    { ...PLATFORMS[1], rating: lc?.contest_ranking?.rating ? Math.round(lc.contest_ranking.rating) : null },
+    { ...PLATFORMS[2], rating: cc?.rating ?? null },
+  ];
+}
+
+export default function CPScore({ score, user, lc, cc }) {
   if (score === null || score === undefined) return null;
-  const tier = TIERS.find(t => score >= t.min) ?? TIERS[TIERS.length - 1];
-  const pct  = Math.round((score / 3000) * 100);
+  const tier      = TIERS.find(t => score >= t.min) ?? TIERS[TIERS.length - 1];
+  const pct       = Math.round((score / 3000) * 100);
+  const breakdown = buildBreakdown({ user, lc, cc });
 
   return (
     <div style={{
       position: "relative", overflow: "hidden", borderRadius: 16,
       background: "linear-gradient(135deg, #1a1f2e 0%, #0f1117 100%)",
-      border: "1px solid #2d3748", padding: "36px 40px",
-      display: "flex", alignItems: "center", justifyContent: "space-between", gap: 32,
+      border: "1px solid #2d3748", padding: "32px 36px",
     }}>
-      <div style={{ position: "absolute", top: "50%", left: 260, transform: "translateY(-50%)", width: 300, height: 300, borderRadius: "50%", background: tier.color, opacity: 0.05, filter: "blur(60px)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", top: "50%", left: "40%", transform: "translateY(-50%)", width: 300, height: 300, borderRadius: "50%", background: tier.color, opacity: 0.05, filter: "blur(60px)", pointerEvents: "none" }} />
 
-      <div>
-        <div style={{ fontSize: 11, color: "#475569", letterSpacing: "2.5px", textTransform: "uppercase", marginBottom: 10 }}>Unified CP Score</div>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
-          <span style={{ fontSize: 80, fontWeight: 900, color: tier.color, lineHeight: 1, letterSpacing: -3 }}>{score}</span>
-          <span style={{ fontSize: 22, fontWeight: 700, color: tier.color, opacity: 0.85 }}>{tier.label}</span>
+      {/* top row: score + ring */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 32 }}>
+        <div>
+          <div style={{ fontSize: 11, color: "#475569", letterSpacing: "2.5px", textTransform: "uppercase", marginBottom: 10 }}>Unified CP Score</div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 14 }}>
+            <span style={{ fontSize: 76, fontWeight: 900, color: tier.color, lineHeight: 1, letterSpacing: -3 }}>{score}</span>
+            <span style={{ fontSize: 20, fontWeight: 700, color: tier.color, opacity: 0.85 }}>{tier.label}</span>
+          </div>
+          <div style={{ marginTop: 8, fontSize: 12, color: "#475569" }}>
+            Normalized across Codeforces · LeetCode · CodeChef
+          </div>
         </div>
-        <div style={{ marginTop: 10, fontSize: 12, color: "#475569" }}>
-          Normalized across Codeforces · LeetCode · CodeChef
+
+        <div style={{ flexShrink: 0 }}>
+          <svg width={100} height={100} viewBox="0 0 110 110">
+            <circle cx={55} cy={55} r={46} fill="none" stroke="#1e2330" strokeWidth={10} />
+            <circle cx={55} cy={55} r={46} fill="none" stroke={tier.color} strokeWidth={10}
+              strokeDasharray={`${2 * Math.PI * 46}`}
+              strokeDashoffset={`${2 * Math.PI * 46 * (1 - pct / 100)}`}
+              strokeLinecap="round" transform="rotate(-90 55 55)"
+            />
+            <text x={55} y={51} textAnchor="middle" fontSize={22} fontWeight={800} fill={tier.color}>{pct}</text>
+            <text x={55} y={67} textAnchor="middle" fontSize={10} fill="#475569" letterSpacing="1">PERCENTILE</text>
+          </svg>
         </div>
       </div>
 
-      <div style={{ flexShrink: 0, textAlign: "center" }}>
-        <svg width={110} height={110} viewBox="0 0 110 110">
-          <circle cx={55} cy={55} r={46} fill="none" stroke="#1e2330" strokeWidth={10} />
-          <circle cx={55} cy={55} r={46} fill="none" stroke={tier.color} strokeWidth={10}
-            strokeDasharray={`${2 * Math.PI * 46}`}
-            strokeDashoffset={`${2 * Math.PI * 46 * (1 - pct / 100)}`}
-            strokeLinecap="round"
-            transform="rotate(-90 55 55)"
-            style={{ transition: "stroke-dashoffset 1s ease" }}
-          />
-          <text x={55} y={51} textAnchor="middle" fontSize={22} fontWeight={800} fill={tier.color}>{pct}</text>
-          <text x={55} y={67} textAnchor="middle" fontSize={10} fill="#475569" letterSpacing="1">PERCENTILE</text>
-        </svg>
+      {/* divider */}
+      <div style={{ height: 1, background: "#1e2330", margin: "24px 0 20px" }} />
+
+      {/* breakdown */}
+      <div style={{ fontSize: 11, color: "#475569", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 14 }}>
+        How it's calculated
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {breakdown.map(({ label, color, rating, max, weight, weightLabel }) => {
+          const norm    = rating ? Math.min(rating, max) / max : 0;
+          const contrib = Math.round(norm * weight * 3000);
+          const barPct  = Math.round(norm * 100);
+          return (
+            <div key={label} style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <span style={{ width: 80, fontSize: 12, color: "#94a3b8", flexShrink: 0 }}>{label}</span>
+
+              {rating ? (
+                <>
+                  <span style={{ width: 42, fontSize: 13, fontWeight: 700, color, flexShrink: 0, textAlign: "right" }}>{rating}</span>
+                  <span style={{ fontSize: 11, color: "#475569", flexShrink: 0 }}>/ {max}</span>
+
+                  <div style={{ flex: 1, height: 6, background: "#1e2330", borderRadius: 99, overflow: "hidden" }}>
+                    <div style={{ width: `${barPct}%`, height: "100%", background: color, borderRadius: 99, transition: "width 0.8s ease" }} />
+                  </div>
+
+                  <span style={{ fontSize: 11, color: "#64748b", flexShrink: 0, width: 28, textAlign: "right" }}>{barPct}%</span>
+                  <span style={{ fontSize: 11, color: "#475569", flexShrink: 0 }}>× {weightLabel}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color, flexShrink: 0, width: 36, textAlign: "right" }}>+{contrib}</span>
+                </>
+              ) : (
+                <span style={{ fontSize: 12, color: "#374151", fontStyle: "italic" }}>not connected</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ marginTop: 16, fontSize: 11, color: "#374151", lineHeight: 1.7 }}>
+        Score = Σ (platform_rating / platform_max × weight) × 3000 &nbsp;·&nbsp; Weights redistributed if platforms are missing
       </div>
     </div>
   );

@@ -117,7 +117,7 @@ export default function Dashboard() {
           <>
             {(() => {
               const score = computeCPScore({ user: data.user, lc: data.lc, cc: data.cc });
-              return score !== null ? <div style={{ marginBottom: 24 }}><CPScore score={score} /></div> : null;
+              return score !== null ? <div style={{ marginBottom: 24 }}><CPScore score={score} user={data.user} lc={data.lc} cc={data.cc} /></div> : null;
             })()}
 
             <div className={styles.platformRow}>
