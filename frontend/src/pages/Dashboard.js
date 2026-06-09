@@ -214,35 +214,54 @@ export default function Dashboard() {
                   <LCContestChart data={data.lc.contest_history} />
                 </div>
               )}
-              {data.lc?.profile?.ac_stats && (
-                <div className={styles.card}>
-                  <h2>Problems Solved</h2>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, marginTop: 20 }}>
-                    {data.lc.profile.ac_stats.filter(s => s.difficulty !== "All").map((s, i) => (
-                      <div key={i} style={{ background: "#0f1117", borderRadius: 10, padding: "16px", textAlign: "center", border: "1px solid #2d3748" }}>
-                        <div style={{ fontSize: 36, fontWeight: 800, color: diffColor(s.difficulty) }}>{s.count}</div>
-                        <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>{s.difficulty}</div>
-                      </div>
-                    ))}
-                  </div>
-                  {data.lc.profile.ac_stats.find(s => s.difficulty === "All") && (
-                    <div style={{ marginTop: 16, textAlign: "center", color: "#64748b", fontSize: 13 }}>
-                      {data.lc.profile.ac_stats.find(s => s.difficulty === "All").count} total solved
+              {data.lc?.profile?.ac_stats && (() => {
+                const easy = data.lc.profile.ac_stats.find(s => s.difficulty === "Easy")?.count ?? 0;
+                const medium = data.lc.profile.ac_stats.find(s => s.difficulty === "Medium")?.count ?? 0;
+                const hard = data.lc.profile.ac_stats.find(s => s.difficulty === "Hard")?.count ?? 0;
+                const total = easy + medium + hard || 1;
+                return (
+                  <div className={styles.card}>
+                    <h2>Problems Solved</h2>
+                    <div style={{ display: "flex", gap: 3, height: 8, borderRadius: 99, overflow: "hidden", margin: "16px 0 24px" }}>
+                      <div style={{ width: `${(easy/total)*100}%`, background: "#22c55e", borderRadius: "99px 0 0 99px" }} />
+                      <div style={{ width: `${(medium/total)*100}%`, background: "#f59e0b" }} />
+                      <div style={{ width: `${(hard/total)*100}%`, background: "#ef4444", borderRadius: "0 99px 99px 0" }} />
                     </div>
-                  )}
-                </div>
-              )}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12 }}>
+                      {[{d:"Easy",c:easy},{d:"Medium",c:medium},{d:"Hard",c:hard}].map(({d,c}) => (
+                        <div key={d} style={{ textAlign: "center" }}>
+                          <div style={{ fontSize: 32, fontWeight: 800, color: diffColor(d), lineHeight: 1 }}>{c}</div>
+                          <div style={{ fontSize: 11, color: "#64748b", marginTop: 6, textTransform: "uppercase", letterSpacing: "0.8px" }}>{d}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ marginTop: 20, padding: "12px 16px", background: "#0f1117", borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: 13, color: "#64748b" }}>Total Solved</span>
+                      <span style={{ fontSize: 20, fontWeight: 700, color: "#e2e8f0" }}>{total}</span>
+                    </div>
+                  </div>
+                );
+              })()}
               {data.lc?.weak_tags?.length > 0 && (
                 <div className={styles.card}>
                   <h2>Least Practiced Topics</h2>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 4 }}>
+                  <p style={{ fontSize: 12, color: "#64748b", margin: "0 0 16px", lineHeight: 1.5 }}>
+                    Topics with the fewest problems solved — focus here to close skill gaps
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     {data.lc.weak_tags.map((t, i) => (
-                      <a key={i} href={`https://leetcode.com/tag/${t.toLowerCase().replace(/\s+/g, "-")}`} target="_blank" rel="noreferrer"
-                        style={{ padding: "6px 14px", background: "#0f1117", border: "1px solid #2d3748", borderRadius: 99, fontSize: 13, color: "#e2e8f0", textDecoration: "none", transition: "border-color 0.2s" }}
-                        onMouseOver={e => e.currentTarget.style.borderColor = "#f59e0b"}
-                        onMouseOut={e => e.currentTarget.style.borderColor = "#2d3748"}
+                      <a key={i}
+                        href={`https://leetcode.com/tag/${t.toLowerCase().replace(/\s+/g, "-")}`}
+                        target="_blank" rel="noreferrer"
+                        style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: "#0f1117", border: "1px solid #2d3748", borderRadius: 8, fontSize: 14, color: "#e2e8f0", textDecoration: "none", transition: "border-color 0.2s, background 0.2s" }}
+                        onMouseOver={e => { e.currentTarget.style.borderColor = "#f59e0b"; e.currentTarget.style.background = "#1a1f2e"; }}
+                        onMouseOut={e => { e.currentTarget.style.borderColor = "#2d3748"; e.currentTarget.style.background = "#0f1117"; }}
                       >
-                        {t}
+                        <span style={{ width: 22, height: 22, background: "#1e2330", border: "1px solid #2d3748", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#64748b", flexShrink: 0, fontWeight: 700 }}>
+                          {i + 1}
+                        </span>
+                        <span style={{ flex: 1 }}>{t}</span>
+                        <span style={{ fontSize: 12, color: "#64748b" }}>Practice →</span>
                       </a>
                     ))}
                   </div>
