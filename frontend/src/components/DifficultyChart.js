@@ -1,21 +1,23 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
+const ORDER = ["800-1199", "1200-1599", "1600-1999", "2000+"];
 const COLORS = { "800-1199": "#808080", "1200-1599": "#008000", "1600-1999": "#03a89e", "2000+": "#ff8c00" };
 
 export default function DifficultyChart({ data }) {
-  const chartData = Object.entries(data)
-    .filter(([k]) => k !== "unrated")
-    .map(([range, stats]) => ({
+  const chartData = ORDER
+    .filter(k => data[k] && data[k].attempted > 0)
+    .map(range => ({
       range,
-      accuracy: stats.attempted > 0 ? Math.round((stats.solved / stats.attempted) * 100) : 0,
-      solved: stats.solved,
-      attempted: stats.attempted,
-    }))
-    .sort((a, b) => a.range.localeCompare(b.range));
+      accuracy: Math.round((data[range].solved / data[range].attempted) * 100),
+      solved: data[range].solved,
+      attempted: data[range].attempted,
+    }));
+
+  if (!chartData.length) return <p style={{ color: "#64748b", fontSize: 13, marginTop: 12 }}>Not enough data yet</p>;
 
   return (
     <ResponsiveContainer width="100%" height={220}>
-      <BarChart data={chartData} barSize={36}>
+      <BarChart data={chartData} barSize={48}>
         <XAxis dataKey="range" tick={{ fill: "#94a3b8", fontSize: 12 }} axisLine={false} tickLine={false} />
         <YAxis domain={[0, 100]} tick={{ fill: "#94a3b8", fontSize: 12 }} axisLine={false} tickLine={false} unit="%" />
         <Tooltip

@@ -193,17 +193,15 @@ export default function Dashboard() {
                 </div>
               )}
               {data.cf?.weak_tags?.length > 0 && (
-                <div className={styles.card}>
+                <div className={`${styles.card} ${styles.fullWidth}`}>
                   <h2>Weak Topics</h2>
                   <WeakTags tags={data.cf.weak_tags} />
                 </div>
               )}
-              {data.cfRecs?.recommendations?.length > 0 && (
-                <div className={styles.fullWidth}>
-                  <Recommendations recommendations={data.cfRecs.recommendations} title="Recommended Problems" />
-                </div>
-              )}
             </div>
+            {data.cfRecs?.recommendations?.length > 0 && (
+              <Recommendations recommendations={data.cfRecs.recommendations} title="Recommended Problems" />
+            )}
           </>
         )}
 
