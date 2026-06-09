@@ -17,7 +17,10 @@ export default function SkillRadar({ cfTagStats }) {
   const chartData = Object.entries(BUCKETS).map(([label, tags]) => {
     const hits = tags.filter(t => cfTagStats[t]?.attempted >= 3);
     const score = hits.length
-      ? Math.round(hits.reduce((a, t) => a + cfTagStats[t].accuracy, 0) / hits.length * 100)
+      ? Math.round(hits.reduce((a, t) => {
+          const { solved, attempted } = cfTagStats[t];
+          return a + solved / attempted;
+        }, 0) / hits.length * 100)
       : 0;
     return { subject: label, score, fullMark: 100 };
   });

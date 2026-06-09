@@ -181,13 +181,13 @@ export default function Dashboard() {
                   <LCContestChart data={data.lc.contest_history} />
                 </div>
               )}
-              {data.cf?.tag_stats && (
+              {data.cf?.tag_analysis && (
                 <div className={`${styles.card} ${styles.fullWidth}`}>
                   <h2>Skill Map</h2>
                   <p style={{ fontSize: 12, color: "#64748b", margin: "-12px 0 4px", lineHeight: 1.6 }}>
                     Accuracy across topic buckets from your Codeforces submissions
                   </p>
-                  <SkillRadar cfTagStats={data.cf.tag_stats} />
+                  <SkillRadar cfTagStats={data.cf.tag_analysis} />
                 </div>
               )}
             </div>
@@ -209,11 +209,11 @@ export default function Dashboard() {
                   <DifficultyChart data={data.cf.difficulty_breakdown} />
                 </div>
               )}
-              {data.cf?.tag_stats && (
+              {data.cf?.tag_analysis && (
                 <div className={`${styles.card} ${styles.fullWidth}`}>
                   <h2>Skill Map</h2>
                   <p style={{ fontSize: 12, color: "#64748b", margin: "-12px 0 4px" }}>Accuracy per topic bucket based on all your submissions</p>
-                  <SkillRadar cfTagStats={data.cf.tag_stats} />
+                  <SkillRadar cfTagStats={data.cf.tag_analysis} />
                 </div>
               )}
               {data.cf?.weak_tags?.length > 0 && (
