@@ -6,3 +6,5 @@ export const analyzeCodeforces = (handle) => api.get(`/api/codeforces/analyze/${
 export const analyzeLeetcode = (username) => api.get(`/api/leetcode/analyze/${username}`);
 export const getCFUser = (handle) => api.get(`/api/codeforces/user/${handle}`);
 export const getCFContests = (handle) => api.get(`/api/codeforces/contests/${handle}`);
+export const getRecommendations = (handle) => api.get(`/api/recommendations/${handle}`);
+export const analyzeCodechef = (username) => api.get(`/api/codechef/analyze/${username}`);

@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 import styles from "./Home.module.css";
 
 export default function Home() {
-  const [handles, setHandles] = useState({ codeforces: "", leetcode: "" });
+  const [handles, setHandles] = useState({ codeforces: "", leetcode: "", codechef: "" });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!handles.codeforces && !handles.leetcode) return;
+    if (!handles.codeforces && !handles.leetcode && !handles.codechef) return;
     setLoading(true);
     const params = new URLSearchParams(handles).toString();
     navigate(`/dashboard?${params}`);
@@ -37,6 +37,15 @@ export default function Home() {
               placeholder="e.g. neal_wu"
               value={handles.leetcode}
               onChange={(e) => setHandles({ ...handles, leetcode: e.target.value })}
+            />
+          </div>
+          <div className={styles.inputGroup}>
+            <label>CodeChef Username</label>
+            <input
+              type="text"
+              placeholder="e.g. gennady.korotkevich"
+              value={handles.codechef}
+              onChange={(e) => setHandles({ ...handles, codechef: e.target.value })}
             />
           </div>
           <button type="submit" disabled={loading}>

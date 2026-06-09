@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { analyzeCodeforces, analyzeLeetcode, getCFUser, getCFContests } from "../api";
+import { analyzeCodeforces, analyzeLeetcode, getCFUser, getCFContests, getRecommendations, analyzeCodechef } from "../api";
 import RatingChart from "../components/RatingChart";
 import WeakTags from "../components/WeakTags";
 import Insights from "../components/Insights";
 import StatCard from "../components/StatCard";
+import Recommendations from "../components/Recommendations";
+import DifficultyChart from "../components/DifficultyChart";
 import styles from "./Dashboard.module.css";
 
 export default function Dashboard() {
@@ -12,8 +14,9 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const cfHandle = params.get("codeforces");
   const lcUsername = params.get("leetcode");
+  const ccUsername = params.get("codechef");
 
-  const [data, setData] = useState({ cf: null, lc: null, user: null, contests: null });
+  const [data, setData] = useState({ cf: null, lc: null, cc: null, user: null, contests: null, recs: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -25,12 +28,16 @@ export default function Dashboard() {
           lcUsername ? analyzeLeetcode(lcUsername) : Promise.resolve(null),
           cfHandle ? getCFUser(cfHandle) : Promise.resolve(null),
           cfHandle ? getCFContests(cfHandle) : Promise.resolve(null),
+          cfHandle ? getRecommendations(cfHandle) : Promise.resolve(null),
+          ccUsername ? analyzeCodechef(ccUsername) : Promise.resolve(null),
         ]);
         setData({
           cf: results[0].value?.data ?? null,
           lc: results[1].value?.data ?? null,
           user: results[2].value?.data ?? null,
           contests: results[3].value?.data ?? null,
+          recs: results[4].value?.data ?? null,
+          cc: results[5].value?.data ?? null,
         });
       } catch (e) {
         setError("Failed to fetch data. Check your handles and try again.");
@@ -47,6 +54,7 @@ export default function Dashboard() {
   const allInsights = [
     ...(data.cf?.insights ?? []),
     ...(data.lc?.insights ?? []),
+    ...(data.cc?.insights ?? []),
   ];
 
   return (
@@ -75,11 +83,21 @@ export default function Dashboard() {
 
         {allInsights.length > 0 && <Insights insights={allInsights} />}
 
+        {data.recs?.recommendations?.length > 0 && (
+          <Recommendations recommendations={data.recs.recommendations} />
+        )}
+
         <div className={styles.grid}>
           {data.cf?.rating_trend?.length > 0 && (
             <div className={styles.card}>
               <h2>Rating History</h2>
               <RatingChart data={data.cf.rating_trend} />
+            </div>
+          )}
+          {data.cf?.difficulty_breakdown && Object.keys(data.cf.difficulty_breakdown).filter(k => k !== "unrated").length > 0 && (
+            <div className={styles.card}>
+              <h2>Accuracy by Difficulty</h2>
+              <DifficultyChart data={data.cf.difficulty_breakdown} />
             </div>
           )}
           {data.cf?.weak_tags?.length > 0 && (
@@ -92,6 +110,17 @@ export default function Dashboard() {
             <div className={styles.card}>
               <h2>Weak Topics (LeetCode)</h2>
               <WeakTags tags={data.lc.weak_tags.map(t => ({ tag: t, accuracy: 0 }))} />
+            </div>
+          )}
+          {data.cc && (
+            <div className={styles.card}>
+              <h2>CodeChef Profile</h2>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 8 }}>
+                {data.cc.rating && <div style={{ fontSize: 32, fontWeight: 700, color: "#f59e0b" }}>{data.cc.rating} <span style={{ fontSize: 16, color: "#94a3b8" }}>{data.cc.stars}</span></div>}
+                {data.cc.global_rank && <div style={{ color: "#94a3b8", fontSize: 14 }}>Global Rank: <span style={{ color: "#e2e8f0", fontWeight: 600 }}>{data.cc.global_rank}</span></div>}
+                {data.cc.country_rank && <div style={{ color: "#94a3b8", fontSize: 14 }}>Country Rank: <span style={{ color: "#e2e8f0", fontWeight: 600 }}>{data.cc.country_rank}</span></div>}
+                {data.cc.problems_solved && <div style={{ color: "#94a3b8", fontSize: 14 }}>Problems Solved: <span style={{ color: "#e2e8f0", fontWeight: 600 }}>{data.cc.problems_solved}</span></div>}
+              </div>
             </div>
           )}
         </div>

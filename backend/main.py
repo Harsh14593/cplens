@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import codeforces, leetcode, codechef
+from routers import codeforces, leetcode, codechef, recommendations
 
 app = FastAPI(title="CPLens API")
 
@@ -19,6 +19,7 @@ app.add_middleware(
 app.include_router(codeforces.router, prefix="/api/codeforces", tags=["Codeforces"])
 app.include_router(leetcode.router, prefix="/api/leetcode", tags=["LeetCode"])
 app.include_router(codechef.router, prefix="/api/codechef", tags=["CodeChef"])
+app.include_router(recommendations.router, prefix="/api/recommendations", tags=["Recommendations"])
 
 @app.get("/")
 def root():
