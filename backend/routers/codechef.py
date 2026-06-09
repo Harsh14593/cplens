@@ -59,11 +59,17 @@ def _parse_profile(soup, username: str) -> dict:
     if len(rank_els) >= 2:
         result["country_rank"] = rank_els[1].text.strip()
 
-    solved_el = soup.select_one("section.rating-data-section.problems-solved h3")
-    if solved_el:
-        match = re.search(r"\d+", solved_el.text)
+    for el in soup.select("section h3, .problems-solved h5, .rating-data-section h5"):
+        match = re.search(r"(\d+)\s*(?:problems?|question)", el.text, re.IGNORECASE)
         if match:
-            result["problems_solved"] = int(match.group())
+            result["problems_solved"] = int(match.group(1))
+            break
+
+    if "problems_solved" not in result:
+        all_text = soup.get_text()
+        match = re.search(r"(\d+)\s*(?:fully\s+)?solved", all_text, re.IGNORECASE)
+        if match:
+            result["problems_solved"] = int(match.group(1))
 
     contest_list = soup.select(".contest-participated-count b")
     if contest_list:

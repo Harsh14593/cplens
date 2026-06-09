@@ -119,7 +119,7 @@ export default function Dashboard() {
                 {data.cc.rating && <div style={{ fontSize: 32, fontWeight: 700, color: "#f59e0b" }}>{data.cc.rating} <span style={{ fontSize: 16, color: "#94a3b8" }}>{data.cc.stars}</span></div>}
                 {data.cc.global_rank && <div style={{ color: "#94a3b8", fontSize: 14 }}>Global Rank: <span style={{ color: "#e2e8f0", fontWeight: 600 }}>{data.cc.global_rank}</span></div>}
                 {data.cc.country_rank && <div style={{ color: "#94a3b8", fontSize: 14 }}>Country Rank: <span style={{ color: "#e2e8f0", fontWeight: 600 }}>{data.cc.country_rank}</span></div>}
-                {data.cc.problems_solved && <div style={{ color: "#94a3b8", fontSize: 14 }}>Problems Solved: <span style={{ color: "#e2e8f0", fontWeight: 600 }}>{data.cc.problems_solved}</span></div>}
+                {data.cc.problems_solved > 0 && <div style={{ color: "#94a3b8", fontSize: 14 }}>Problems Solved: <span style={{ color: "#e2e8f0", fontWeight: 600 }}>{data.cc.problems_solved}</span></div>}
               </div>
             </div>
           )}
