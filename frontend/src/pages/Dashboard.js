@@ -10,6 +10,8 @@ import PlatformCard from "../components/PlatformCard";
 import LCContestChart from "../components/LCContestChart";
 import CCRatingChart from "../components/CCRatingChart";
 import LCProblemsChart from "../components/LCProblemsChart";
+import CPScore, { computeCPScore } from "../components/CPScore";
+import SkillRadar from "../components/SkillRadar";
 import RecentSolved from "../components/RecentSolved";
 import styles from "./Dashboard.module.css";
 
@@ -113,6 +115,11 @@ export default function Dashboard() {
 
         {activeTab === "overview" && (
           <>
+            {(() => {
+              const score = computeCPScore({ user: data.user, lc: data.lc, cc: data.cc });
+              return score !== null ? <div style={{ marginBottom: 24 }}><CPScore score={score} /></div> : null;
+            })()}
+
             <div className={styles.platformRow}>
               {data.user && (
                 <PlatformCard
@@ -174,6 +181,15 @@ export default function Dashboard() {
                   <LCContestChart data={data.lc.contest_history} />
                 </div>
               )}
+              {data.cf?.tag_stats && (
+                <div className={`${styles.card} ${styles.fullWidth}`}>
+                  <h2>Skill Map</h2>
+                  <p style={{ fontSize: 12, color: "#64748b", margin: "-12px 0 4px", lineHeight: 1.6 }}>
+                    Accuracy across topic buckets from your Codeforces submissions
+                  </p>
+                  <SkillRadar cfTagStats={data.cf.tag_stats} />
+                </div>
+              )}
             </div>
           </>
         )}
@@ -191,6 +207,13 @@ export default function Dashboard() {
                 <div className={styles.card}>
                   <h2>Accuracy by Difficulty</h2>
                   <DifficultyChart data={data.cf.difficulty_breakdown} />
+                </div>
+              )}
+              {data.cf?.tag_stats && (
+                <div className={`${styles.card} ${styles.fullWidth}`}>
+                  <h2>Skill Map</h2>
+                  <p style={{ fontSize: 12, color: "#64748b", margin: "-12px 0 4px" }}>Accuracy per topic bucket based on all your submissions</p>
+                  <SkillRadar cfTagStats={data.cf.tag_stats} />
                 </div>
               )}
               {data.cf?.weak_tags?.length > 0 && (
