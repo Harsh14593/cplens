@@ -341,6 +341,14 @@ export default function Dashboard() {
 
         {activeTab === "codeforces" && (
           <>
+            {data.user && (
+              <div style={{ background: "#6366f108", border: "1px solid #6366f125", borderLeft: "4px solid #6366f1", borderRadius: 12, padding: "20px 28px", marginBottom: 24, display: "flex", gap: 40, flexWrap: "wrap" }}>
+                <PlatformStat label="Rating"     value={data.user.rating ?? "—"}    color={getRatingColor(data.user.rating)} />
+                <PlatformStat label="Rank"       value={data.user.rank ?? "—"}       color="#94a3b8" />
+                <PlatformStat label="Max Rating" value={data.user.maxRating ?? "—"} color={getRatingColor(data.user.maxRating)} />
+                <PlatformStat label="Contests"   value={data.contests?.length ?? "—"} color="#64748b" />
+              </div>
+            )}
             <div className={styles.grid}>
               {data.cf?.rating_trend?.length > 0 && (
                 <div className={styles.card}>
@@ -357,7 +365,7 @@ export default function Dashboard() {
               {data.cf?.tag_analysis && (
                 <div className={`${styles.card} ${styles.fullWidth}`}>
                   <h2>Skill Map</h2>
-                  <p style={{ fontSize: 12, color: "#64748b", margin: "-12px 0 4px" }}>Accuracy per topic bucket based on all your submissions</p>
+                  <p style={{ fontSize: 12, color: "#64748b", margin: "0 0 16px" }}>Accuracy per topic bucket based on all your submissions</p>
                   <SkillRadar cfTagStats={data.cf?.tag_analysis} lcTagCounts={data.lc?.tag_counts} />
                 </div>
               )}
@@ -376,6 +384,14 @@ export default function Dashboard() {
 
         {activeTab === "leetcode" && (
           <>
+            {data.lc?.contest_ranking && (
+              <div style={{ background: "#f59e0b08", border: "1px solid #f59e0b25", borderLeft: "4px solid #f59e0b", borderRadius: 12, padding: "20px 28px", marginBottom: 24, display: "flex", gap: 40, flexWrap: "wrap" }}>
+                <PlatformStat label="Contest Rating" value={Math.round(data.lc.contest_ranking.rating)}                                    color="#f59e0b" />
+                <PlatformStat label="Global Rank"    value={`#${data.lc.contest_ranking.globalRanking?.toLocaleString()}`}                  color="#94a3b8" />
+                <PlatformStat label="Top %"          value={`${data.lc.contest_ranking.topPercentage?.toFixed(1)}%`}                        color="#f59e0b" />
+                <PlatformStat label="Contests"       value={data.lc.contest_ranking.attendedContestsCount ?? "—"}                           color="#64748b" />
+              </div>
+            )}
             <div className={styles.grid}>
               {data.lc?.contest_history?.length > 0 && (
                 <div className={styles.card}>
@@ -392,7 +408,7 @@ export default function Dashboard() {
               {data.lc?.weak_tags?.length > 0 && (
                 <div className={styles.card} style={{ minHeight: 380 }}>
                   <h2>Skill Gaps</h2>
-                  <p style={{ fontSize: 12, color: "#64748b", margin: "0 0 20px", lineHeight: 1.6 }}>
+                  <p style={{ fontSize: 12, color: "#64748b", margin: "0 0 16px", lineHeight: 1.6 }}>
                     Topics with fewest problems solved — target these to level up
                   </p>
                   <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -435,39 +451,47 @@ export default function Dashboard() {
         )}
 
         {activeTab === "codechef" && (
-          <div className={styles.grid}>
+          <>
             {data.cc && (
-              <div className={styles.card}>
-                <h2>Profile</h2>
-                <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 12 }}>
-                  <div style={{ fontSize: 48, fontWeight: 800, color: "#22c55e" }}>
-                    {data.cc.rating} <span style={{ fontSize: 20, color: "#94a3b8" }}>{data.cc.stars}</span>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                    {data.cc.global_rank && <div><div style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px" }}>Global Rank</div><div style={{ fontSize: 20, fontWeight: 700 }}>{data.cc.global_rank}</div></div>}
-                    {data.cc.country_rank && <div><div style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px" }}>Country Rank</div><div style={{ fontSize: 20, fontWeight: 700 }}>{data.cc.country_rank}</div></div>}
-                    {data.cc.contests_participated && <div><div style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px" }}>Contests</div><div style={{ fontSize: 20, fontWeight: 700 }}>{data.cc.contests_participated}</div></div>}
-                    {data.cc.problems_solved > 0 && <div><div style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px" }}>Problems Solved</div><div style={{ fontSize: 20, fontWeight: 700 }}>{data.cc.problems_solved}</div></div>}
-                  </div>
+              <div style={{ background: "#22c55e08", border: "1px solid #22c55e25", borderLeft: "4px solid #22c55e", borderRadius: 12, padding: "20px 28px", marginBottom: 24, display: "flex", gap: 40, flexWrap: "wrap", alignItems: "center" }}>
+                <div>
+                  <div style={{ fontSize: 44, fontWeight: 900, color: "#22c55e", lineHeight: 1 }}>{data.cc.rating}</div>
+                  <div style={{ fontSize: 18, color: "#f59e0b", marginTop: 4 }}>{data.cc.stars}</div>
                 </div>
+                <div style={{ width: 1, height: 48, background: "#2d3748", flexShrink: 0 }} />
+                {data.cc.global_rank  && <PlatformStat label="Global Rank"   value={data.cc.global_rank}            color="#94a3b8" />}
+                {data.cc.country_rank && <PlatformStat label="Country Rank"  value={data.cc.country_rank}           color="#94a3b8" />}
+                {data.cc.contests_participated && <PlatformStat label="Contests" value={data.cc.contests_participated} color="#64748b" />}
+                {data.cc.problems_solved > 0   && <PlatformStat label="Problems Solved" value={data.cc.problems_solved} color="#64748b" />}
               </div>
             )}
-            {data.cc?.rating_history?.length > 0 && (
-              <div className={styles.card}>
-                <h2>Rating History</h2>
-                <CCRatingChart data={data.cc.rating_history} />
-              </div>
-            )}
-            {data.ccRecs?.recommendations?.length > 0 && (
-              <div className={`${styles.card} ${styles.fullWidth}`}>
-                <h2>Practice Links</h2>
-                <Recommendations recommendations={data.ccRecs.recommendations} />
-              </div>
-            )}
-          </div>
+            <div className={styles.grid}>
+              {data.cc?.rating_history?.length > 0 && (
+                <div className={`${styles.card} ${styles.fullWidth}`}>
+                  <h2>Rating History</h2>
+                  <CCRatingChart data={data.cc.rating_history} />
+                </div>
+              )}
+              {data.ccRecs?.recommendations?.length > 0 && (
+                <div className={`${styles.card} ${styles.fullWidth}`}>
+                  <h2>Practice Links</h2>
+                  <Recommendations recommendations={data.ccRecs.recommendations} />
+                </div>
+              )}
+            </div>
+          </>
         )}
 
       </main>
+    </div>
+  );
+}
+
+function PlatformStat({ label, value, color }) {
+  return (
+    <div>
+      <div style={{ fontSize: 11, color: "#475569", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: 22, fontWeight: 800, color }}>{value}</div>
     </div>
   );
 }
