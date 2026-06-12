@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, getDocs, query, orderBy, limit } from "firebase/firestore";
+import { collection, doc, setDoc, getDocs, deleteDoc, query, orderBy, limit } from "firebase/firestore";
 import { db } from "../firebase";
 
 export async function saveLeaderboardEntry(uid, { displayName, photoURL, cfHandle, lcUsername, ccUsername, cfRating, lcRating, ccRating, cpScore, tier, tierColor, achievementCount, earnedIds }) {
@@ -47,6 +47,18 @@ export async function getSnapshots(uid, count = 60) {
   const ref = collection(db, "users", uid, "snapshots");
   const q   = query(ref, orderBy("date", "asc"), limit(count));
   const snap = await getDocs(q);
+  return snap.docs.map(d => d.data());
+}
+
+// goals
+export async function saveGoal(uid, goal) {
+  await setDoc(doc(db, "users", uid, "goals", goal.id), goal);
+}
+export async function deleteGoal(uid, goalId) {
+  await deleteDoc(doc(db, "users", uid, "goals", goalId));
+}
+export async function getGoals(uid) {
+  const snap = await getDocs(collection(db, "users", uid, "goals"));
   return snap.docs.map(d => d.data());
 }
 
