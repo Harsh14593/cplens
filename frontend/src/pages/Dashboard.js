@@ -194,7 +194,7 @@ export default function Dashboard() {
               {data.cf?.activity && (
                 <div className={`${styles.card} ${styles.fullWidth}`}>
                   <h2>Submission Activity</h2>
-                  <ActivityHeatmap cfActivity={data.cf?.activity} lcActivity={data.lc?.activity} />
+                  <ActivityHeatmap cfActivity={data.cf?.activity} lcActivity={data.lc?.activity} ccRatingHistory={data.cc?.rating_history} />
                 </div>
               )}
             </div>
@@ -232,7 +232,7 @@ export default function Dashboard() {
               {data.cf?.activity && (
                 <div className={`${styles.card} ${styles.fullWidth}`}>
                   <h2>Submission Activity</h2>
-                  <ActivityHeatmap cfActivity={data.cf?.activity} lcActivity={data.lc?.activity} />
+                  <ActivityHeatmap cfActivity={data.cf?.activity} lcActivity={data.lc?.activity} ccRatingHistory={data.cc?.rating_history} />
                 </div>
               )}
             </div>

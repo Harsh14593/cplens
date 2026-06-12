@@ -46,12 +46,22 @@ function monthLabels(weeks) {
   return labels;
 }
 
-export default function ActivityHeatmap({ cfActivity, lcActivity }) {
+export default function ActivityHeatmap({ cfActivity, lcActivity, ccRatingHistory }) {
   const [tooltip, setTooltip] = useState(null);
 
-  // merge CF + LC counts per date
+  // build CC activity from contest participation dates
+  const ccActivity = {};
+  if (ccRatingHistory?.length) {
+    ccRatingHistory.forEach(({ date }) => {
+      if (!date) return;
+      const d = date.slice(0, 10); // "YYYY-MM-DD"
+      ccActivity[d] = (ccActivity[d] ?? 0) + 1;
+    });
+  }
+
+  // merge CF + LC + CC counts per date
   const activity = {};
-  [cfActivity, lcActivity].forEach(src => {
+  [cfActivity, lcActivity, ccActivity].forEach(src => {
     if (!src) return;
     Object.entries(src).forEach(([date, count]) => {
       activity[date] = (activity[date] ?? 0) + count;
@@ -78,7 +88,7 @@ export default function ActivityHeatmap({ cfActivity, lcActivity }) {
         <Stat value={streak.current} label={`day streak${streak.current > 0 ? " 🔥" : ""}`} color="#f59e0b" />
         <Stat value={streak.longest} label="longest streak" color="#6366f1" />
         <span style={{ marginLeft: "auto", fontSize: 11, color: "#374151", background: "#1e2330", border: "1px solid #2d3748", borderRadius: 99, padding: "3px 10px" }}>
-          CF + LC combined
+          CF + LC + CC combined
         </span>
       </div>
 
