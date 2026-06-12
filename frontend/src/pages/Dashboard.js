@@ -351,12 +351,17 @@ export default function Dashboard() {
                   <LCContestChart data={data.lc.contest_history} />
                 </div>
               )}
-              {data.cc?.rating_history?.length > 0 && (
-                <div className={styles.card}>
-                  <h2>CC Rating History</h2>
-                  <CCRatingChart data={data.cc.rating_history} />
-                </div>
-              )}
+              {data.cc?.rating_history?.length > 0 && (() => {
+                const cfHas = data.cf?.rating_trend?.length > 0;
+                const lcHas = data.lc?.contest_history?.length > 0;
+                const isOdd = cfHas && lcHas; // all 3 present — CC would be orphaned
+                return (
+                  <div className={`${styles.card} ${isOdd ? "" : styles.fullWidth}`}>
+                    <h2>CC Rating History</h2>
+                    <CCRatingChart data={data.cc.rating_history} />
+                  </div>
+                );
+              })()}
               {data.cf?.tag_analysis && (
                 <div className={`${styles.card} ${styles.fullWidth}`}>
                   <h2>Skill Map</h2>
