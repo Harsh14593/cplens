@@ -130,7 +130,7 @@ export default function Contests() {
 
   const platforms = ["all", "Codeforces", "LeetCode", "CodeChef"];
   const visible   = filter === "all" ? contests : contests.filter(c => c.platform === filter);
-  const next      = contests[0] ?? null;
+  const next      = visible[0] ?? null;
 
   return (
     <div className={styles.page}>
