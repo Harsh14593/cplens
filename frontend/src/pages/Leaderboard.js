@@ -32,7 +32,7 @@ export default function Leaderboard() {
         </div>
       </header>
 
-      <div style={{ maxWidth: 860, margin: "0 auto", padding: "0 16px 40px" }}>
+      <div style={{ maxWidth: 860, margin: "0 auto", padding: "32px 40px 40px" }}>
         <div style={{ marginBottom: 28 }}>
           <h2 style={{ fontSize: 22, fontWeight: 800, color: "#e2e8f0", margin: 0 }}>Global Leaderboard</h2>
           <p style={{ color: "#475569", fontSize: 13, marginTop: 6 }}>
