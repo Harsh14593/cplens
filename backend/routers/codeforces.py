@@ -35,7 +35,7 @@ async def get_contest_history(handle: str):
 @router.get("/analyze/{handle}")
 async def analyze(handle: str):
     async with httpx.AsyncClient() as client:
-        sub_r = await client.get(f"{CF_API}/user.status?handle={handle}&count=500")
+        sub_r = await client.get(f"{CF_API}/user.status?handle={handle}&count=10000")
         rating_r = await client.get(f"{CF_API}/user.rating?handle={handle}")
 
     submissions = sub_r.json().get("result", [])

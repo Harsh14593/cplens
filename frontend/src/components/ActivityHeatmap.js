@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const COLORS = ["#1a2030", "#0e4429", "#006d32", "#26a641", "#39d353"];
+const COLORS = ["#1a2030", "#2d1f5e", "#4c35a8", "#6366f1", "#a5b4fc"];
 const MONTHS  = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const DAYS    = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
@@ -84,7 +84,7 @@ export default function ActivityHeatmap({ cfActivity, lcActivity, ccRatingHistor
     <div>
       {/* summary row */}
       <div style={{ display: "flex", gap: 24, marginBottom: 16, alignItems: "center", flexWrap: "wrap" }}>
-        <Stat value={total} label="submissions in past 365 days" color="#39d353" />
+        <Stat value={total} label="submissions in past 365 days" color="#a5b4fc" />
         <Stat value={streak.current} label={`day streak${streak.current > 0 ? " 🔥" : ""}`} color="#f59e0b" />
         <Stat value={streak.longest} label="longest streak" color="#6366f1" />
         <span style={{ marginLeft: "auto", fontSize: 11, color: "#374151", background: "#1e2330", border: "1px solid #2d3748", borderRadius: 99, padding: "3px 10px" }}>
@@ -155,7 +155,7 @@ export default function ActivityHeatmap({ cfActivity, lcActivity, ccRatingHistor
           padding: "5px 10px", fontSize: 12, color: "#e2e8f0", pointerEvents: "none", zIndex: 9999,
           whiteSpace: "nowrap",
         }}>
-          <strong style={{ color: "#39d353" }}>{tooltip.day.count}</strong>
+          <strong style={{ color: "#a5b4fc" }}>{tooltip.day.count}</strong>
           {tooltip.day.count === 1 ? " submission" : " submissions"} · {tooltip.day.date}
         </div>
       )}

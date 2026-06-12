@@ -278,6 +278,13 @@ export default function Dashboard() {
               )}
             </div>
 
+            {(data.cf?.activity || data.lc?.activity || data.cc?.rating_history) && (
+              <div className={`${styles.card} ${styles.fullWidth}`} style={{ marginBottom: 8 }}>
+                <h2>Submission Activity</h2>
+                <ActivityHeatmap cfActivity={data.cf?.activity} lcActivity={data.lc?.activity} ccRatingHistory={data.cc?.rating_history} />
+              </div>
+            )}
+
             <div className={styles.card} style={{ marginBottom: 8 }}>
               <h2>AI Study Plan</h2>
               <StudyPlan data={data} user={{ cpScore: computeCPScore({ user: data.user, lc: data.lc, cc: data.cc }) }} />
@@ -312,12 +319,6 @@ export default function Dashboard() {
                     Accuracy across topic buckets from your Codeforces submissions
                   </p>
                   <SkillRadar cfTagStats={data.cf?.tag_analysis} lcTagCounts={data.lc?.tag_counts} />
-                </div>
-              )}
-              {data.cf?.activity && (
-                <div className={`${styles.card} ${styles.fullWidth}`}>
-                  <h2>Submission Activity</h2>
-                  <ActivityHeatmap cfActivity={data.cf?.activity} lcActivity={data.lc?.activity} ccRatingHistory={data.cc?.rating_history} />
                 </div>
               )}
             </div>
@@ -357,12 +358,6 @@ export default function Dashboard() {
                 <div className={`${styles.card} ${styles.fullWidth}`}>
                   <h2>Weak Topics</h2>
                   <WeakTags tags={data.cf.weak_tags} />
-                </div>
-              )}
-              {data.cf?.activity && (
-                <div className={`${styles.card} ${styles.fullWidth}`}>
-                  <h2>Submission Activity</h2>
-                  <ActivityHeatmap cfActivity={data.cf?.activity} lcActivity={data.lc?.activity} ccRatingHistory={data.cc?.rating_history} />
                 </div>
               )}
             </div>
