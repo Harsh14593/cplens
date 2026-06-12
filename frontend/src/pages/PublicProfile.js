@@ -188,12 +188,17 @@ export default function PublicProfile() {
               <LCContestChart data={data.lc.contest_history} />
             </div>
           )}
-          {data.cc?.rating_history?.length > 0 && (
-            <div className={styles.card}>
-              <h2>CodeChef Rating History</h2>
-              <CCRatingChart data={data.cc.rating_history} />
-            </div>
-          )}
+          {data.cc?.rating_history?.length > 0 && (() => {
+            const cfHas = data.cf?.rating_trend?.length > 0;
+            const lcHas = data.lc?.contest_history?.length > 0;
+            const isOdd = cfHas && lcHas;
+            return (
+              <div className={styles.card} style={isOdd ? { gridColumn: "1 / -1" } : {}}>
+                <h2>CodeChef Rating History</h2>
+                <CCRatingChart data={data.cc.rating_history} />
+              </div>
+            );
+          })()}
         </div>
 
         {/* heatmap full width */}
