@@ -1,0 +1,36 @@
+.bone {
+  background: #1e2330;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.04) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.6s infinite;
+}
+
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* reusable shape utilities */
+.block  { display: block; }
+.inline { display: inline-block; }
+.circle { border-radius: 50%; }
+.pill   { border-radius: 99px; }
+.card   {
+  background: #1e2330;
+  border: 1px solid #2d3748;
+  border-radius: 14px;
+  padding: 28px;
+}

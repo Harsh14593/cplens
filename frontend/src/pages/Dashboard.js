@@ -23,6 +23,7 @@ import { TIERS } from "../components/CPScore";
 import Achievements, { computeAchievements } from "../components/Achievements";
 import GoalTracker from "../components/GoalTracker";
 import { getRatingColor } from "../utils/cfColors";
+import { DashboardSkeleton } from "../components/Skeleton";
 
 export default function Dashboard() {
   const [params] = useSearchParams();
@@ -201,13 +202,28 @@ export default function Dashboard() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, loading]);
 
+  if (error) return <div className={styles.center}><p>{error}</p></div>;
+
   if (loading) return (
-    <div className={styles.center}>
-      <div className={styles.spinner} />
-      <p>Analyzing your profile across all platforms...</p>
+    <div className={styles.page}>
+      <header className={styles.header}>
+        <h1 onClick={() => navigate("/")} className={styles.logo}>CP<span>Lens</span></h1>
+        <nav className={styles.navActions}>
+          <button className={styles.navBtn} style={{ color: "#a855f7" }}>⚔ Challenge</button>
+          <button onClick={() => navigate("/contests")}    className={styles.navBtn} style={{ color: "#22c55e" }}>Contests</button>
+          <button onClick={() => navigate("/leaderboard")} className={styles.navBtn} style={{ color: "#f59e0b" }}>Leaderboard</button>
+        </nav>
+        {user && (
+          <div className={styles.avatarMenu}>
+            <img src={user.photoURL} alt="" className={styles.avatarImg} referrerPolicy="no-referrer" />
+          </div>
+        )}
+      </header>
+      <main className={styles.main}>
+        <DashboardSkeleton cfHandle={cfHandle} lcUsername={lcUsername} ccUsername={ccUsername} />
+      </main>
     </div>
   );
-  if (error) return <div className={styles.center}><p>{error}</p></div>;
 
   const allInsights = [
     ...(data.cf?.insights ?? []),
