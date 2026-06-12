@@ -365,8 +365,8 @@ export default function Dashboard() {
               {data.cf?.tag_analysis && (
                 <div className={`${styles.card} ${styles.fullWidth}`}>
                   <h2>Skill Map</h2>
-                  <p style={{ fontSize: 12, color: "#64748b", margin: "0 0 16px" }}>Accuracy per topic bucket based on all your submissions</p>
-                  <SkillRadar cfTagStats={data.cf?.tag_analysis} lcTagCounts={data.lc?.tag_counts} />
+                  <p style={{ fontSize: 12, color: "#64748b", margin: "0 0 16px" }}>Accuracy per topic bucket from your Codeforces submissions</p>
+                  <SkillRadar cfTagStats={data.cf?.tag_analysis} />
                 </div>
               )}
               {data.cf?.weak_tags?.length > 0 && (
@@ -403,6 +403,13 @@ export default function Dashboard() {
                 <div className={styles.card} style={{ minHeight: 380 }}>
                   <h2>Problems Solved</h2>
                   <LCProblemsChart stats={data.lc.profile.ac_stats} />
+                </div>
+              )}
+              {data.lc?.tag_counts?.length > 0 && (
+                <div className={`${styles.card} ${styles.fullWidth}`}>
+                  <h2>Skill Map</h2>
+                  <p style={{ fontSize: 12, color: "#64748b", margin: "0 0 16px" }}>Problems solved per topic bucket from your LeetCode history</p>
+                  <SkillRadar lcTagCounts={data.lc?.tag_counts} />
                 </div>
               )}
               {data.lc?.weak_tags?.length > 0 && (
