@@ -114,7 +114,9 @@ export default function Leaderboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getLeaderboard().then(data => { setRows(data); setLoading(false); });
+    getLeaderboard()
+      .then(data => { setRows(data); setLoading(false); })
+      .catch(() => setLoading(false));
   }, []);
 
   const top3   = rows.slice(0, 3);

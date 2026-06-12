@@ -94,34 +94,6 @@ export default function Dashboard() {
           ccRecs:   results[7].value?.data ?? null,
         });
 
-        // save snapshot + leaderboard entry if signed in
-        if (user) {
-          const cpScore  = computeCPScore({ user: cfU, lc, cc });
-          const tier     = TIERS.find(t => cpScore >= t.min) ?? TIERS[TIERS.length - 1];
-          await Promise.all([
-            saveSnapshot(user.uid, {
-              cfRating: cfU?.rating ?? null,
-              lcRating: lc?.contest_ranking?.rating ?? null,
-              ccRating: cc?.rating ?? null,
-              cpScore,
-            }),
-            saveLeaderboardEntry(user.uid, {
-              displayName: user.displayName,
-              photoURL:    user.photoURL,
-              cfHandle:    cfHandle    ?? null,
-              lcUsername:  lcUsername  ?? null,
-              ccUsername:  ccUsername  ?? null,
-              cfRating:    cfU?.rating ?? null,
-              lcRating:    lc?.contest_ranking?.rating ?? null,
-              ccRating:    cc?.rating ?? null,
-              cpScore,
-              tier:        tier.label,
-              tierColor:   tier.color,
-            }),
-          ]);
-          const snaps = await getSnapshots(user.uid);
-          setSnapshots(snaps);
-        }
       } catch (e) {
         setError("Failed to fetch data. Check your handles and try again.");
       } finally {
@@ -131,6 +103,45 @@ export default function Dashboard() {
     fetchAll();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cfHandle, lcUsername, ccUsername]);
+
+  // Separate effect: save to Firestore once BOTH user auth AND data are ready.
+  // This fires even if auth resolves after the initial fetch.
+  useEffect(() => {
+    if (!user || loading || !data.user) return;
+    async function persist() {
+      try {
+        const cpScore = computeCPScore({ user: data.user, lc: data.lc, cc: data.cc });
+        const tier    = TIERS.find(t => cpScore >= t.min) ?? TIERS[TIERS.length - 1];
+        await Promise.all([
+          saveSnapshot(user.uid, {
+            cfRating: data.user?.rating ?? null,
+            lcRating: data.lc?.contest_ranking?.rating ?? null,
+            ccRating: data.cc?.rating ?? null,
+            cpScore,
+          }),
+          saveLeaderboardEntry(user.uid, {
+            displayName: user.displayName,
+            photoURL:    user.photoURL,
+            cfHandle:    cfHandle    ?? null,
+            lcUsername:  lcUsername  ?? null,
+            ccUsername:  ccUsername  ?? null,
+            cfRating:    data.user?.rating ?? null,
+            lcRating:    data.lc?.contest_ranking?.rating ?? null,
+            ccRating:    data.cc?.rating ?? null,
+            cpScore,
+            tier:        tier.label,
+            tierColor:   tier.color,
+          }),
+        ]);
+        const snaps = await getSnapshots(user.uid);
+        setSnapshots(snaps);
+      } catch (e) {
+        console.error("Firestore save failed:", e);
+      }
+    }
+    persist();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, loading]);
 
   if (loading) return (
     <div className={styles.center}>
