@@ -164,20 +164,25 @@ function Stat({ value, label, color }) {
 
 function calcStreak(activity) {
   const today = new Date();
-  let current = 0, longest = 0, temp = 0;
 
-  for (let i = 0; i < 365; i++) {
+  // current streak: walk back from today; skip today if empty (not submitted yet today)
+  let current = 0;
+  let startOffset = (activity[fmt(today)] ?? 0) > 0 ? 0 : 1;
+  for (let i = startOffset; i < 365; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
-    const key = fmt(d);
-    if ((activity[key] ?? 0) > 0) {
-      temp++;
-      if (i === 0 || i <= current + 1) current = temp;
-    } else {
-      if (i === 0) current = 0;
-      temp = 0;
-    }
-    longest = Math.max(longest, temp);
+    if ((activity[fmt(d)] ?? 0) > 0) current++;
+    else break;
   }
+
+  // longest streak: scan all 365 days oldest → newest
+  let longest = 0, temp = 0;
+  for (let i = 364; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    if ((activity[fmt(d)] ?? 0) > 0) { temp++; longest = Math.max(longest, temp); }
+    else temp = 0;
+  }
+
   return { current, longest };
 }
