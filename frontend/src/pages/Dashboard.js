@@ -28,11 +28,24 @@ export default function Dashboard() {
   const lcUsername = params.get("leetcode");
   const ccUsername = params.get("codechef");
 
-  const { user, logout } = useAuth();
+  const { user, logout, saveHandles } = useAuth();
+  const [editOpen, setEditOpen]   = useState(false);
+  const [editForm, setEditForm]   = useState({ cf: cfHandle || "", lc: lcUsername || "", cc: ccUsername || "" });
 
   async function handleLogout() {
     await logout();
     navigate("/");
+  }
+
+  async function handleEditSave(e) {
+    e.preventDefault();
+    await saveHandles(editForm.cf, editForm.lc, editForm.cc);
+    setEditOpen(false);
+    const p = new URLSearchParams();
+    if (editForm.cf) p.set("codeforces", editForm.cf);
+    if (editForm.lc) p.set("leetcode",   editForm.lc);
+    if (editForm.cc) p.set("codechef",   editForm.cc);
+    navigate(`/dashboard?${p.toString()}`);
   }
   const [data, setData] = useState({ cf: null, lc: null, cc: null, user: null, contests: null, cfRecs: null, lcRecs: null, ccRecs: null });
   const [loading, setLoading] = useState(true);
@@ -179,6 +192,7 @@ export default function Dashboard() {
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: 4 }}>
               <img src={user.photoURL} alt="" style={{ width: 26, height: 26, borderRadius: "50%", border: "2px solid #2d3748" }} referrerPolicy="no-referrer" />
               <button onClick={handleLogout} style={{ background: "none", border: "none", color: "#64748b", fontSize: 12, cursor: "pointer" }}>Sign out</button>
+              <button onClick={() => { setEditForm({ cf: cfHandle||"", lc: lcUsername||"", cc: ccUsername||"" }); setEditOpen(true); }} style={{ background: "none", border: "none", color: "#6366f1", fontSize: 12, cursor: "pointer", fontWeight: 600 }}>Edit handles</button>
             </div>
           )}
           <button onClick={() => navigate("/compare")} style={{
@@ -501,6 +515,55 @@ export default function Dashboard() {
         )}
 
       </main>
+
+      {/* Edit handles modal */}
+      {editOpen && (
+        <div onClick={() => setEditOpen(false)} style={{
+          position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)",
+          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000,
+        }}>
+          <form onClick={e => e.stopPropagation()} onSubmit={handleEditSave} style={{
+            background: "#1a1f2e", border: "1px solid #2d3748", borderRadius: 16,
+            padding: "32px 36px", width: 400, display: "flex", flexDirection: "column", gap: 20,
+          }}>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: "#f1f5f9", marginBottom: 4 }}>Edit handles</div>
+              <div style={{ fontSize: 13, color: "#475569" }}>Leave a field blank to remove that platform.</div>
+            </div>
+            {[
+              { key: "cf", label: "Codeforces", placeholder: "e.g. tourist", color: "#6366f1" },
+              { key: "lc", label: "LeetCode",   placeholder: "e.g. neal_wu",  color: "#f59e0b" },
+              { key: "cc", label: "CodeChef",   placeholder: "e.g. gennady",  color: "#22c55e" },
+            ].map(({ key, label, placeholder, color }) => (
+              <div key={key}>
+                <div style={{ fontSize: 11, fontWeight: 700, color, letterSpacing: "1px", textTransform: "uppercase", marginBottom: 6 }}>{label}</div>
+                <input
+                  value={editForm[key]}
+                  onChange={e => setEditForm(f => ({ ...f, [key]: e.target.value }))}
+                  placeholder={placeholder}
+                  style={{
+                    width: "100%", boxSizing: "border-box",
+                    background: "#0f1117", border: `1px solid #2d3748`, borderRadius: 8,
+                    padding: "10px 14px", fontSize: 14, color: "#e2e8f0", outline: "none",
+                  }}
+                  onFocus={e => e.target.style.borderColor = color}
+                  onBlur={e => e.target.style.borderColor = "#2d3748"}
+                />
+              </div>
+            ))}
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 4 }}>
+              <button type="button" onClick={() => setEditOpen(false)} style={{
+                padding: "9px 20px", borderRadius: 8, border: "1px solid #2d3748",
+                background: "none", color: "#64748b", fontSize: 13, cursor: "pointer",
+              }}>Cancel</button>
+              <button type="submit" style={{
+                padding: "9px 20px", borderRadius: 8, border: "none",
+                background: "#6366f1", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer",
+              }}>Save & Reload</button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
