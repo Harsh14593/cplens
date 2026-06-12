@@ -1,12 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getStudyPlan } from "../api";
 
 const WEEK_COLORS = ["#6366f1", "#f59e0b", "#22c55e", "#ef4444"];
 
-export default function StudyPlan({ data, user, cfHandle }) {
+function planKey(cf, lc, cc) {
+  return `cplens_plan_${cf || ""}_${lc || ""}_${cc || ""}`;
+}
+
+export default function StudyPlan({ data, user, cfHandle, lcUsername, ccUsername }) {
   const [plan,    setPlan]    = useState(null);
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState(null);
+
+  // load persisted plan on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(planKey(cfHandle, lcUsername, ccUsername));
+      if (saved) setPlan(JSON.parse(saved));
+    } catch {}
+  }, [cfHandle, lcUsername, ccUsername]);
 
   async function generate() {
     setLoading(true);
@@ -46,6 +58,7 @@ export default function StudyPlan({ data, user, cfHandle }) {
 
       const res = await getStudyPlan(payload);
       setPlan(res.data);
+      try { localStorage.setItem(planKey(cfHandle, lcUsername, ccUsername), JSON.stringify(res.data)); } catch {}
     } catch (e) {
       setError("Failed to generate plan. Please try again.");
     } finally {
@@ -143,7 +156,10 @@ export default function StudyPlan({ data, user, cfHandle }) {
       )}
 
       <div style={{ marginTop: 16, textAlign: "right" }}>
-        <button onClick={() => { setPlan(null); setError(null); }} style={{ fontSize: 12, color: "#475569", background: "none", border: "none", cursor: "pointer" }}>
+        <button onClick={() => {
+          setPlan(null); setError(null);
+          try { localStorage.removeItem(planKey(cfHandle, lcUsername, ccUsername)); } catch {}
+        }} style={{ fontSize: 12, color: "#475569", background: "none", border: "none", cursor: "pointer" }}>
           Regenerate plan
         </button>
       </div>
