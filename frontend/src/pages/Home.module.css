@@ -81,4 +81,18 @@
 .form button:hover { background: #4f46e5; }
 .form button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.hint { font-size: 13px; color: #4a5568; }
+.hint { font-size: 13px; color: #4a5568; margin-top: 8px; }
+
+.topBar { display: flex; justify-content: flex-end; margin-bottom: 32px; }
+
+.googleBtn {
+  display: flex; align-items: center; padding: 9px 18px;
+  background: #1e2330; border: 1px solid #2d3748; border-radius: 8px;
+  color: #e2e8f0; font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: border-color 0.2s;
+}
+.googleBtn:hover { border-color: #6366f1; }
+
+.userInfo { display: flex; align-items: center; gap: 10px; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #2d3748; }
+.userName { font-size: 13px; color: #94a3b8; font-weight: 600; }

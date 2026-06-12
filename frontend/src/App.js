@@ -3,16 +3,19 @@ import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import PublicProfile from "./pages/PublicProfile";
 import Compare from "./pages/Compare";
+import { AuthProvider } from "./contexts/AuthContext";
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/u" element={<PublicProfile />} />
-        <Route path="/compare" element={<Compare />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/u" element={<PublicProfile />} />
+          <Route path="/compare" element={<Compare />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }

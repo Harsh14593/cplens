@@ -15,6 +15,7 @@ import SkillRadar from "../components/SkillRadar";
 import ActivityHeatmap from "../components/ActivityHeatmap";
 import RecentSolved from "../components/RecentSolved";
 import styles from "./Dashboard.module.css";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Dashboard() {
   const [params] = useSearchParams();
@@ -23,6 +24,7 @@ export default function Dashboard() {
   const lcUsername = params.get("leetcode");
   const ccUsername = params.get("codechef");
 
+  const { user, logout } = useAuth();
   const [data, setData] = useState({ cf: null, lc: null, cc: null, user: null, contests: null, cfRecs: null, lcRecs: null, ccRecs: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -98,6 +100,12 @@ export default function Dashboard() {
       <header className={styles.header}>
         <h1 onClick={() => navigate("/")} className={styles.logo}>CP<span>Lens</span></h1>
         <div className={styles.platformBadges}>
+          {user && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: 4 }}>
+              <img src={user.photoURL} alt="" style={{ width: 26, height: 26, borderRadius: "50%", border: "2px solid #2d3748" }} referrerPolicy="no-referrer" />
+              <button onClick={logout} style={{ background: "none", border: "none", color: "#64748b", fontSize: 12, cursor: "pointer" }}>Sign out</button>
+            </div>
+          )}
           <button onClick={shareProfile} style={{
             padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600,
             cursor: "pointer", border: "1px solid #2d3748", background: copied ? "#1a2e1a" : "#1e2330",
