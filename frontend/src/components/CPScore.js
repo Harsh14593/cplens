@@ -1,4 +1,4 @@
-const TIERS = [
+export const TIERS = [
   { min: 2600, label: "Grandmaster", color: "#ef4444" },
   { min: 2200, label: "Master",      color: "#ff8c00" },
   { min: 1800, label: "Expert",      color: "#a855f7" },

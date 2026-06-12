@@ -1,6 +1,31 @@
 import { collection, doc, setDoc, getDocs, query, orderBy, limit } from "firebase/firestore";
 import { db } from "../firebase";
 
+export async function saveLeaderboardEntry(uid, { displayName, photoURL, cfHandle, lcUsername, ccUsername, cfRating, lcRating, ccRating, cpScore, tier, tierColor }) {
+  const ref = doc(db, "leaderboard", uid);
+  await setDoc(ref, {
+    displayName: displayName ?? "Anonymous",
+    photoURL:    photoURL    ?? null,
+    cfHandle:    cfHandle    ?? null,
+    lcUsername:  lcUsername  ?? null,
+    ccUsername:  ccUsername  ?? null,
+    cfRating:    cfRating    ?? null,
+    lcRating:    lcRating    ?? null,
+    ccRating:    ccRating    ?? null,
+    cpScore:     cpScore     ?? 0,
+    tier:        tier        ?? "Beginner",
+    tierColor:   tierColor   ?? "#64748b",
+    updatedAt:   new Date().toISOString(),
+  });
+}
+
+export async function getLeaderboard() {
+  const ref  = collection(db, "leaderboard");
+  const snap = await getDocs(ref);
+  const rows = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+  return rows.sort((a, b) => (b.cpScore ?? 0) - (a.cpScore ?? 0));
+}
+
 const today = () => new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
 export async function saveSnapshot(uid, { cfRating, lcRating, ccRating, cpScore }) {

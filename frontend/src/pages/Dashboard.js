@@ -18,7 +18,8 @@ import RecentSolved from "../components/RecentSolved";
 import styles from "./Dashboard.module.css";
 import { useAuth } from "../contexts/AuthContext";
 import ProgressTracker from "../components/ProgressTracker";
-import { saveSnapshot, getSnapshots, calcDelta } from "../utils/progress";
+import { saveSnapshot, getSnapshots, calcDelta, saveLeaderboardEntry } from "../utils/progress";
+import { TIERS } from "../components/CPScore";
 
 export default function Dashboard() {
   const [params] = useSearchParams();
@@ -93,15 +94,31 @@ export default function Dashboard() {
           ccRecs:   results[7].value?.data ?? null,
         });
 
-        // save daily snapshot + load history if user is signed in
+        // save snapshot + leaderboard entry if signed in
         if (user) {
-          const cpScore = computeCPScore({ user: cfU, lc, cc });
-          await saveSnapshot(user.uid, {
-            cfRating: cfU?.rating ?? null,
-            lcRating: lc?.contest_ranking?.rating ?? null,
-            ccRating: cc?.rating ?? null,
-            cpScore,
-          });
+          const cpScore  = computeCPScore({ user: cfU, lc, cc });
+          const tier     = TIERS.find(t => cpScore >= t.min) ?? TIERS[TIERS.length - 1];
+          await Promise.all([
+            saveSnapshot(user.uid, {
+              cfRating: cfU?.rating ?? null,
+              lcRating: lc?.contest_ranking?.rating ?? null,
+              ccRating: cc?.rating ?? null,
+              cpScore,
+            }),
+            saveLeaderboardEntry(user.uid, {
+              displayName: user.displayName,
+              photoURL:    user.photoURL,
+              cfHandle:    cfHandle    ?? null,
+              lcUsername:  lcUsername  ?? null,
+              ccUsername:  ccUsername  ?? null,
+              cfRating:    cfU?.rating ?? null,
+              lcRating:    lc?.contest_ranking?.rating ?? null,
+              ccRating:    cc?.rating ?? null,
+              cpScore,
+              tier:        tier.label,
+              tierColor:   tier.color,
+            }),
+          ]);
           const snaps = await getSnapshots(user.uid);
           setSnapshots(snaps);
         }
@@ -153,6 +170,13 @@ export default function Dashboard() {
               <button onClick={handleLogout} style={{ background: "none", border: "none", color: "#64748b", fontSize: 12, cursor: "pointer" }}>Sign out</button>
             </div>
           )}
+          <button onClick={() => navigate("/leaderboard")} style={{
+            padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600,
+            cursor: "pointer", border: "1px solid #2d3748", background: "#1e2330",
+            color: "#f59e0b", transition: "all 0.2s",
+          }}>
+            🏆 Leaderboard
+          </button>
           <button onClick={shareProfile} style={{
             padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600,
             cursor: "pointer", border: "1px solid #2d3748", background: copied ? "#1a2e1a" : "#1e2330",
