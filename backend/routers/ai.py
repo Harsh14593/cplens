@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 import os
 import json
 import re
@@ -38,13 +39,14 @@ async def generate_study_plan(req: StudyPlanRequest):
     if not api_key:
         raise HTTPException(status_code=503, detail="AI service not configured")
 
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-1.5-flash")
-
+    client = genai.Client(api_key=api_key)
     prompt = _build_prompt(req)
 
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+        )
         text = response.text.strip()
         # strip markdown code fences if present
         text = re.sub(r"^```(?:json)?\s*", "", text)

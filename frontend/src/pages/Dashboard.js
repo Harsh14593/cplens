@@ -35,7 +35,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied]       = useState(false);
+  const [embedCopied, setEmbedCopied] = useState(false);
 
   function shareProfile() {
     const p = new URLSearchParams();
@@ -46,6 +47,20 @@ export default function Dashboard() {
     navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  function copyEmbed() {
+    const apiBase = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    const p = new URLSearchParams();
+    if (lcUsername) p.set("lc", lcUsername);
+    if (ccUsername) p.set("cc", ccUsername);
+    const qs = p.toString() ? `?${p.toString()}` : "";
+    const cardUrl = `${apiBase}/api/card/${cfHandle}${qs}`;
+    const profileUrl = `${window.location.origin}/u?codeforces=${cfHandle}${lcUsername ? `&leetcode=${lcUsername}` : ""}${ccUsername ? `&codechef=${ccUsername}` : ""}`;
+    const markdown = `[![CPLens](${cardUrl})](${profileUrl})`;
+    navigator.clipboard.writeText(markdown);
+    setEmbedCopied(true);
+    setTimeout(() => setEmbedCopied(false), 2000);
   }
 
   useEffect(() => {
@@ -119,6 +134,16 @@ export default function Dashboard() {
           }}>
             {copied ? "✓ Copied!" : "Share →"}
           </button>
+          {cfHandle && (
+            <button onClick={copyEmbed} style={{
+              padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600,
+              cursor: "pointer", border: "1px solid #2d3748",
+              background: embedCopied ? "#1a1f35" : "#1e2330",
+              color: embedCopied ? "#6366f1" : "#94a3b8", transition: "all 0.2s",
+            }}>
+              {embedCopied ? "✓ Copied!" : "README Card"}
+            </button>
+          )}
           {data.user && (
             <span className={styles.badge} style={{ color: getRatingColor(data.user.rating) }}>
               CF {data.user.rating ?? "—"} · {data.user.rank}

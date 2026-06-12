@@ -1,10 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import codeforces, leetcode, codechef, recommendations, ai
+from routers import codeforces, leetcode, codechef, recommendations, ai, card
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 app = FastAPI(title="CPLens API")
-
-import os
 
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
 
@@ -20,7 +22,8 @@ app.include_router(codeforces.router, prefix="/api/codeforces", tags=["Codeforce
 app.include_router(leetcode.router, prefix="/api/leetcode", tags=["LeetCode"])
 app.include_router(codechef.router, prefix="/api/codechef", tags=["CodeChef"])
 app.include_router(recommendations.router, prefix="/api/recommendations", tags=["Recommendations"])
-app.include_router(ai.router, prefix="/api/ai", tags=["AI"])
+app.include_router(ai.router,   prefix="/api/ai",   tags=["AI"])
+app.include_router(card.router, prefix="/api/card", tags=["Card"])
 
 @app.get("/")
 def root():
