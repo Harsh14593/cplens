@@ -25,13 +25,14 @@ async def _fetch_cf_contests():
             if not start:
                 continue
             result.append({
-                "id":       str(c["id"]),
-                "name":     c["name"],
-                "platform": "Codeforces",
-                "color":    "#3b82f6",
-                "startTime": start,
-                "duration": c.get("durationSeconds", 0),
-                "url":      f"https://codeforces.com/contests/{c['id']}",
+                "id":          str(c["id"]),
+                "name":        c["name"],
+                "platform":    "Codeforces",
+                "color":       "#3b82f6",
+                "startTime":   start,
+                "duration":    c.get("durationSeconds", 0),
+                "url":         f"https://codeforces.com/contest/{c['id']}",
+                "registerUrl": f"https://codeforces.com/contestRegistration/{c['id']}",
             })
         return sorted(result, key=lambda x: x["startTime"])
     except Exception:

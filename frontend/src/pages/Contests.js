@@ -103,7 +103,7 @@ function ContestCard({ contest }) {
           }}>
             + Calendar
           </a>
-          <a href={contest.url} target="_blank" rel="noreferrer" style={{
+          <a href={contest.registerUrl || contest.url} target="_blank" rel="noreferrer" style={{
             fontSize: 11, padding: "5px 12px", borderRadius: 7,
             background: contest.color + "20", border: `1px solid ${contest.color}50`,
             color: contest.color, textDecoration: "none", fontWeight: 600,
