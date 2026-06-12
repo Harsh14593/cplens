@@ -211,6 +211,7 @@ export default function Dashboard() {
         <h1 onClick={() => navigate("/")} className={styles.logo}>CP<span>Lens</span></h1>
         <nav className={styles.navActions}>
           <button className={styles.navBtn} style={{ color: "#a855f7" }}>⚔ Challenge</button>
+          <button onClick={() => navigate("/compare")} className={styles.navBtn} style={{ color: "#38bdf8" }}>Compare</button>
           <button onClick={() => navigate("/contests")}    className={styles.navBtn} style={{ color: "#22c55e" }}>Contests</button>
           <button onClick={() => navigate("/leaderboard")} className={styles.navBtn} style={{ color: "#f59e0b" }}>Leaderboard</button>
         </nav>
@@ -261,6 +262,7 @@ export default function Dashboard() {
           }} className={styles.navBtn} style={{ color: challenged ? "#22c55e" : "#a855f7" }}>
             {challenged ? "✓ Copied!" : "⚔ Challenge"}
           </button>
+          <button onClick={() => { const p = new URLSearchParams(); if (cfHandle) p.set("a_cf", cfHandle); if (lcUsername) p.set("a_lc", lcUsername); if (ccUsername) p.set("a_cc", ccUsername); navigate(`/compare?${p.toString()}`); }} className={styles.navBtn} style={{ color: "#38bdf8" }}>Compare</button>
           <button onClick={() => navigate("/contests")}    className={styles.navBtn} style={{ color: "#22c55e" }}>Contests</button>
           <button onClick={() => navigate("/leaderboard")} className={styles.navBtn} style={{ color: "#f59e0b" }}>Leaderboard</button>
         </nav>
