@@ -356,7 +356,7 @@ export default function Dashboard() {
                 const lcHas = data.lc?.contest_history?.length > 0;
                 const isOdd = cfHas && lcHas; // all 3 present — CC would be orphaned
                 return (
-                  <div className={`${styles.card} ${isOdd ? "" : styles.fullWidth}`}>
+                  <div className={`${styles.card} ${isOdd ? styles.fullWidth : ""}`}>
                     <h2>CC Rating History</h2>
                     <CCRatingChart data={data.cc.rating_history} />
                   </div>
