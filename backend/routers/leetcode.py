@@ -72,6 +72,7 @@ async def analyze(username: str):
     query getUserProfile($username: String!) {
         matchedUser(username: $username) {
             username
+            submissionCalendar
             submitStats { acSubmissionNum { difficulty count submissions } }
             profile { ranking starRating }
             tagProblemCounts {
@@ -109,7 +110,30 @@ async def analyze(username: str):
     contest_history = [h for h in (contest_data.get("userContestRankingHistory") or []) if h.get("attended")]
 
     from analysis.engine import analyze_leetcode
+    import json
+    from datetime import datetime, timezone
+
     analysis = analyze_leetcode(user)
+
+    # parse submissionCalendar: JSON string of {unix_ts_str: count}
+    lc_activity = {}
+    raw_calendar = user.get("submissionCalendar")
+    if raw_calendar:
+        try:
+            cal = json.loads(raw_calendar)
+            for ts_str, count in cal.items():
+                dt = datetime.fromtimestamp(int(ts_str), tz=timezone.utc)
+                lc_activity[dt.strftime("%Y-%m-%d")] = int(count)
+        except Exception:
+            pass
+
+    # full tag counts for skill map
+    tag_data = user.get("tagProblemCounts", {})
+    tag_counts = (
+        tag_data.get("advanced", []) +
+        tag_data.get("intermediate", []) +
+        tag_data.get("fundamental", [])
+    )
 
     return {
         **analysis,
@@ -120,6 +144,8 @@ async def analyze(username: str):
         "contest_ranking": contest_ranking,
         "contest_history": contest_history[-20:],
         "recent_solved": [r["title"] for r in recent],
+        "activity": lc_activity,
+        "tag_counts": tag_counts,
     }
 
 

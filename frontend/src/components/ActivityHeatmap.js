@@ -46,10 +46,19 @@ function monthLabels(weeks) {
   return labels;
 }
 
-export default function ActivityHeatmap({ activity }) {
+export default function ActivityHeatmap({ cfActivity, lcActivity }) {
   const [tooltip, setTooltip] = useState(null);
 
-  if (!activity || !Object.keys(activity).length) {
+  // merge CF + LC counts per date
+  const activity = {};
+  [cfActivity, lcActivity].forEach(src => {
+    if (!src) return;
+    Object.entries(src).forEach(([date, count]) => {
+      activity[date] = (activity[date] ?? 0) + count;
+    });
+  });
+
+  if (!Object.keys(activity).length) {
     return <p style={{ color: "#64748b", fontSize: 13, marginTop: 12 }}>No submission data available</p>;
   }
 
@@ -64,10 +73,13 @@ export default function ActivityHeatmap({ activity }) {
   return (
     <div>
       {/* summary row */}
-      <div style={{ display: "flex", gap: 24, marginBottom: 16 }}>
+      <div style={{ display: "flex", gap: 24, marginBottom: 16, alignItems: "center", flexWrap: "wrap" }}>
         <Stat value={total} label="submissions this year" color="#39d353" />
         <Stat value={streak.current} label={`day streak${streak.current > 0 ? " 🔥" : ""}`} color="#f59e0b" />
         <Stat value={streak.longest} label="longest streak" color="#6366f1" />
+        <span style={{ marginLeft: "auto", fontSize: 11, color: "#374151", background: "#1e2330", border: "1px solid #2d3748", borderRadius: 99, padding: "3px 10px" }}>
+          CF + LC combined
+        </span>
       </div>
 
       <div style={{ overflowX: "auto", paddingBottom: 4 }}>

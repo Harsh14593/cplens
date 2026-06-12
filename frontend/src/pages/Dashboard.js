@@ -188,13 +188,13 @@ export default function Dashboard() {
                   <p style={{ fontSize: 12, color: "#64748b", margin: "-12px 0 4px", lineHeight: 1.6 }}>
                     Accuracy across topic buckets from your Codeforces submissions
                   </p>
-                  <SkillRadar cfTagStats={data.cf.tag_analysis} />
+                  <SkillRadar cfTagStats={data.cf?.tag_analysis} lcTagCounts={data.lc?.tag_counts} />
                 </div>
               )}
               {data.cf?.activity && (
                 <div className={`${styles.card} ${styles.fullWidth}`}>
                   <h2>Submission Activity</h2>
-                  <ActivityHeatmap activity={data.cf.activity} />
+                  <ActivityHeatmap cfActivity={data.cf?.activity} lcActivity={data.lc?.activity} />
                 </div>
               )}
             </div>
@@ -220,7 +220,7 @@ export default function Dashboard() {
                 <div className={`${styles.card} ${styles.fullWidth}`}>
                   <h2>Skill Map</h2>
                   <p style={{ fontSize: 12, color: "#64748b", margin: "-12px 0 4px" }}>Accuracy per topic bucket based on all your submissions</p>
-                  <SkillRadar cfTagStats={data.cf.tag_analysis} />
+                  <SkillRadar cfTagStats={data.cf?.tag_analysis} lcTagCounts={data.lc?.tag_counts} />
                 </div>
               )}
               {data.cf?.weak_tags?.length > 0 && (
@@ -232,7 +232,7 @@ export default function Dashboard() {
               {data.cf?.activity && (
                 <div className={`${styles.card} ${styles.fullWidth}`}>
                   <h2>Submission Activity</h2>
-                  <ActivityHeatmap activity={data.cf.activity} />
+                  <ActivityHeatmap cfActivity={data.cf?.activity} lcActivity={data.lc?.activity} />
                 </div>
               )}
             </div>
