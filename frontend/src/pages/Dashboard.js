@@ -11,6 +11,7 @@ import LCContestChart from "../components/LCContestChart";
 import CCRatingChart from "../components/CCRatingChart";
 import LCProblemsChart from "../components/LCProblemsChart";
 import CPScore, { computeCPScore } from "../components/CPScore";
+import StudyPlan from "../components/StudyPlan";
 import SkillRadar from "../components/SkillRadar";
 import ActivityHeatmap from "../components/ActivityHeatmap";
 import RecentSolved from "../components/RecentSolved";
@@ -190,6 +191,11 @@ export default function Dashboard() {
                   ]}
                 />
               )}
+            </div>
+
+            <div className={styles.card} style={{ marginBottom: 8 }}>
+              <h2>AI Study Plan</h2>
+              <StudyPlan data={data} user={{ cpScore: computeCPScore({ user: data.user, lc: data.lc, cc: data.cc }) }} />
             </div>
 
             {allInsights.length > 0 && <Insights insights={allInsights} />}
