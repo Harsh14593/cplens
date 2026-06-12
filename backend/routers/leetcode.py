@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 import httpx
+import cache
 
 router = APIRouter()
 
@@ -68,6 +69,9 @@ async def get_contest_history(username: str):
 
 @router.get("/analyze/{username}")
 async def analyze(username: str):
+    key = f"lc:analyze:{username}"
+    if (hit := cache.get(key)) is not None:
+        return hit
     profile_query = """
     query getUserProfile($username: String!) {
         matchedUser(username: $username) {
@@ -135,7 +139,7 @@ async def analyze(username: str):
         tag_data.get("fundamental", [])
     )
 
-    return {
+    result = {
         **analysis,
         "profile": {
             "ranking": user.get("profile", {}).get("ranking"),
@@ -147,6 +151,8 @@ async def analyze(username: str):
         "activity": lc_activity,
         "tag_counts": tag_counts,
     }
+    cache.set(key, result, ttl=300)
+    return result
 
 
 async def _fetch_parallel(client, q1, q2, username):

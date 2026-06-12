@@ -2,6 +2,7 @@ from fastapi import APIRouter
 import httpx
 import asyncio
 from datetime import datetime, timezone
+import cache
 
 router = APIRouter()
 
@@ -96,9 +97,12 @@ async def _fetch_cc_contests():
 
 @router.get("/upcoming")
 async def get_upcoming_contests():
+    if (hit := cache.get("contests:upcoming")) is not None:
+        return hit
     cf, lc, cc = await asyncio.gather(
         _fetch_cf_contests(), _fetch_lc_contests(), _fetch_cc_contests()
     )
     all_contests = cf + lc + cc
     all_contests.sort(key=lambda x: x["startTime"])
+    cache.set("contests:upcoming", all_contests, ttl=600)
     return all_contests

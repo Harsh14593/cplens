@@ -3,6 +3,7 @@ import httpx
 from bs4 import BeautifulSoup
 import re
 import json
+import cache
 
 router = APIRouter()
 
@@ -22,6 +23,9 @@ async def get_user(username: str):
 
 @router.get("/analyze/{username}")
 async def analyze(username: str):
+    key = f"cc:analyze:{username}"
+    if (hit := cache.get(key)) is not None:
+        return hit
     async with httpx.AsyncClient(follow_redirects=True, timeout=30) as client:
         r = await client.get(f"{CC_BASE}/users/{username}", headers=HEADERS)
     if r.status_code == 404:
@@ -37,7 +41,9 @@ async def analyze(username: str):
     if profile.get("global_rank"):
         insights.append(f"Your global rank is {profile['global_rank']} — top percentile performance")
 
-    return {**profile, "rating_history": rating_history, "insights": insights}
+    result = {**profile, "rating_history": rating_history, "insights": insights}
+    cache.set(key, result, ttl=300)
+    return result
 
 
 def _parse_profile(soup, username: str) -> dict:
