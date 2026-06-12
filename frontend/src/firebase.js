@@ -15,3 +15,12 @@ const app      = initializeApp(firebaseConfig);
 export const auth     = getAuth(app);
 export const db       = getFirestore(app);
 export const provider = new GoogleAuthProvider();
+
+// Firebase signInWithPopup has a known bug where cancelling a popup leaves
+// an internal _pendingPromise null, causing an uncaught assertion on the
+// next onAuthStateChanged event. Suppress it — it's harmless.
+window.addEventListener("unhandledrejection", (e) => {
+  if (e.reason?.message?.includes("INTERNAL ASSERTION FAILED")) {
+    e.preventDefault();
+  }
+});
