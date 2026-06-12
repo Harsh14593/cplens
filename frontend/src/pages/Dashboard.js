@@ -414,8 +414,3 @@ function getRatingColor(rating) {
   return "#808080";
 }
 
-function diffColor(d) {
-  if (d === "Easy") return "#22c55e";
-  if (d === "Medium") return "#f59e0b";
-  return "#ef4444";
-}

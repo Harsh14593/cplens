@@ -69,7 +69,8 @@ export default function Compare() {
       fetchUser(params.get("a_cf"), params.get("a_lc"), params.get("a_cc")),
       fetchUser(params.get("b_cf"), params.get("b_lc"), params.get("b_cc")),
     ]).then(([a, b]) => { setDataA(a); setDataB(b); setLoading(false); });
-  }, [params.toString()]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.toString()]); // params.toString() is the stable dep we want
 
   function submit(e) {
     e.preventDefault();
@@ -174,7 +175,6 @@ export default function Compare() {
           <h2>Head-to-Head Stats</h2>
           <div className={styles.metrics}>
             {metrics.map(({ label, a, b, max, colorA, colorB }) => {
-              const total = (a || 0) + (b || 0) || 1;
               const pctA  = Math.round(((a || 0) / max) * 100);
               const pctB  = Math.round(((b || 0) / max) * 100);
               const aWins = (a || 0) > (b || 0);

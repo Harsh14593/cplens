@@ -18,6 +18,7 @@ export default function Home() {
       if (handles.cc) p.set("codechef",   handles.cc);
       navigate(`/dashboard?${p.toString()}`);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handles]);
 
   // pre-fill form if logged in but no handles yet
