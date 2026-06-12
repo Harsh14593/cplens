@@ -154,6 +154,9 @@ export default function Contests() {
       </header>
 
       <div style={{ maxWidth: 860, margin: "0 auto", padding: "clamp(16px, 4vw, 40px)" }}>
+        <h2 style={{ fontSize: 24, fontWeight: 900, color: "#f1f5f9", margin: "0 0 28px", letterSpacing: "-0.5px" }}>
+          Upcoming Contests
+        </h2>
 
         {/* next up hero card */}
         {!loading && next && (

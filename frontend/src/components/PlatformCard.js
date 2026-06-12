@@ -12,8 +12,6 @@ function StatWithTooltip({ s }) {
       <span className={styles.value} style={{
         color: s.color ?? "#e2e8f0",
         cursor: s.tooltip ? "help" : "default",
-        borderBottom: s.tooltip ? "1px dashed #475569" : "none",
-        display: "inline-block",
       }}>
         {s.value}
       </span>
