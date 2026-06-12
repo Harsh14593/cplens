@@ -187,68 +187,37 @@ export default function Dashboard() {
     <div className={styles.page}>
       <header className={styles.header}>
         <h1 onClick={() => navigate("/")} className={styles.logo}>CP<span>Lens</span></h1>
-        <div className={styles.platformBadges}>
-          {user && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: 4 }}>
-              <img src={user.photoURL} alt="" style={{ width: 26, height: 26, borderRadius: "50%", border: "2px solid #2d3748" }} referrerPolicy="no-referrer" />
-              <button onClick={handleLogout} style={{ background: "none", border: "none", color: "#64748b", fontSize: 12, cursor: "pointer" }}>Sign out</button>
-              <button onClick={() => { setEditForm({ cf: cfHandle||"", lc: lcUsername||"", cc: ccUsername||"" }); setEditOpen(true); }} style={{ background: "none", border: "none", color: "#6366f1", fontSize: 12, cursor: "pointer", fontWeight: 600 }}>Edit handles</button>
-            </div>
-          )}
-          <button onClick={() => navigate("/compare")} style={{
-            padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600,
-            cursor: "pointer", border: "1px solid #2d3748", background: "#1e2330",
-            color: "#a855f7", transition: "all 0.2s",
-          }}>
-            ⚔️ Compare
-          </button>
-          <button onClick={() => navigate("/contests")} style={{
-            padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600,
-            cursor: "pointer", border: "1px solid #2d3748", background: "#1e2330",
-            color: "#22c55e", transition: "all 0.2s",
-          }}>
-            📅 Contests
-          </button>
-          <button onClick={() => navigate("/leaderboard")} style={{
-            padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600,
-            cursor: "pointer", border: "1px solid #2d3748", background: "#1e2330",
-            color: "#f59e0b", transition: "all 0.2s",
-          }}>
-            🏆 Leaderboard
-          </button>
-          <button onClick={shareProfile} style={{
-            padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600,
-            cursor: "pointer", border: "1px solid #2d3748", background: copied ? "#1a2e1a" : "#1e2330",
-            color: copied ? "#22c55e" : "#94a3b8", transition: "all 0.2s",
-          }}>
-            {copied ? "✓ Copied!" : "Share →"}
+
+        <nav className={styles.navActions}>
+          <button onClick={() => navigate("/compare")} className={styles.navBtn} style={{ color: "#a855f7" }}>⚔️ Compare</button>
+          <button onClick={() => navigate("/contests")} className={styles.navBtn} style={{ color: "#22c55e" }}>📅 Contests</button>
+          <button onClick={() => navigate("/leaderboard")} className={styles.navBtn} style={{ color: "#f59e0b" }}>🏆 Leaderboard</button>
+          <button onClick={shareProfile} className={styles.navBtn} style={{ color: copied ? "#22c55e" : "#94a3b8" }}>
+            {copied ? "✓ Copied" : "Share →"}
           </button>
           {cfHandle && (
-            <button onClick={copyEmbed} style={{
-              padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600,
-              cursor: "pointer", border: "1px solid #2d3748",
-              background: embedCopied ? "#1a1f35" : "#1e2330",
-              color: embedCopied ? "#6366f1" : "#94a3b8", transition: "all 0.2s",
-            }}>
-              {embedCopied ? "✓ Copied!" : "README Card"}
+            <button onClick={copyEmbed} className={styles.navBtn} style={{ color: embedCopied ? "#6366f1" : "#94a3b8" }}>
+              {embedCopied ? "✓ Copied" : "README Card"}
             </button>
           )}
-          {data.user && (
-            <span className={styles.badge} style={{ color: getRatingColor(data.user.rating) }}>
-              CF {data.user.rating ?? "—"} · {data.user.rank}
-            </span>
-          )}
-          {data.lc?.contest_ranking && (
-            <span className={styles.badge} style={{ color: "#f59e0b" }}>
-              LC {Math.round(data.lc.contest_ranking.rating ?? 0)} · Top {data.lc.contest_ranking.topPercentage?.toFixed(1)}%
-            </span>
-          )}
-          {data.cc?.rating && (
-            <span className={styles.badge} style={{ color: "#f59e0b" }}>
-              CC {data.cc.rating} · {data.cc.stars}
-            </span>
-          )}
-        </div>
+        </nav>
+
+        {user && (
+          <div className={styles.avatarMenu}>
+            <img src={user.photoURL} alt="" className={styles.avatarImg} referrerPolicy="no-referrer" />
+            <div className={styles.avatarDropdown}>
+              <div className={styles.avatarDropdownName}>{user.displayName}</div>
+              <div className={styles.avatarDropdownEmail}>{user.email}</div>
+              <div className={styles.avatarDropdownDivider} />
+              <button className={styles.avatarDropdownItem} onClick={() => { setEditForm({ cf: cfHandle||"", lc: lcUsername||"", cc: ccUsername||"" }); setEditOpen(true); }}>
+                ✏️ Edit handles
+              </button>
+              <button className={styles.avatarDropdownItem} onClick={handleLogout}>
+                → Sign out
+              </button>
+            </div>
+          </div>
+        )}
       </header>
 
       <nav className={styles.tabs}>

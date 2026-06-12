@@ -14,6 +14,47 @@
 .platformBadges { display: flex; gap: 16px; flex-wrap: wrap; }
 .badge { font-size: 13px; font-weight: 600; background: #1e2330; border: 1px solid #2d3748; padding: 6px 12px; border-radius: 99px; }
 
+/* nav actions */
+.navActions { display: flex; align-items: center; gap: 4px; }
+.navBtn {
+  padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
+  cursor: pointer; border: 1px solid #2d3748; background: #1e2330;
+  transition: border-color 0.15s, background 0.15s;
+}
+.navBtn:hover { background: #252b3b; border-color: #3d4a60; }
+
+/* avatar dropdown */
+.avatarMenu {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.avatarImg {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 2px solid #2d3748; display: block;
+  transition: border-color 0.15s;
+}
+.avatarMenu:hover .avatarImg { border-color: #6366f1; }
+.avatarDropdown {
+  display: none;
+  position: absolute; top: calc(100% + 10px); right: 0;
+  background: #1a1f2e; border: 1px solid #2d3748; border-radius: 12px;
+  min-width: 200px; padding: 8px; z-index: 200;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.avatarMenu:hover .avatarDropdown { display: block; }
+.avatarDropdownName { font-size: 13px; font-weight: 700; color: #e2e8f0; padding: 6px 10px 2px; }
+.avatarDropdownEmail { font-size: 11px; color: #475569; padding: 0 10px 8px; }
+.avatarDropdownDivider { height: 1px; background: #2d3748; margin: 4px 0; }
+.avatarDropdownItem {
+  display: block; width: 100%; text-align: left;
+  padding: 8px 10px; border-radius: 8px; border: none;
+  background: none; color: #94a3b8; font-size: 13px; cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.avatarDropdownItem:hover { background: #252b3b; color: #e2e8f0; }
+
 .tabs {
   display: flex;
   gap: 6px;

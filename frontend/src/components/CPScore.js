@@ -70,7 +70,7 @@ export default function CPScore({ score, user, lc, cc }) {
               strokeLinecap="round" transform="rotate(-90 55 55)"
             />
             <text x={55} y={51} textAnchor="middle" fontSize={22} fontWeight={800} fill={tier.color}>{pct}</text>
-            <text x={55} y={67} textAnchor="middle" fontSize={10} fill="#475569" letterSpacing="1">PERCENTILE</text>
+            <text x={55} y={67} textAnchor="middle" fontSize={10} fill="#475569" letterSpacing="1">OF MAX</text>
           </svg>
         </div>
       </div>
