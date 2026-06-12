@@ -1,4 +1,30 @@
+import { useState } from "react";
 import styles from "./PlatformCard.module.css";
+
+function StatWithTooltip({ s }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className={styles.stat} style={{ position: "relative" }}
+      onMouseEnter={() => s.tooltip && setShow(true)}
+      onMouseLeave={() => setShow(false)}
+    >
+      <span className={styles.label}>{s.label}</span>
+      <span className={styles.value} style={{
+        color: s.color ?? "#e2e8f0",
+        cursor: s.tooltip ? "help" : "default",
+        borderBottom: s.tooltip ? "1px dashed #475569" : "none",
+        display: "inline-block",
+      }}>
+        {s.value}
+      </span>
+      {show && s.tooltip && (
+        <div className={styles.tooltip}>
+          {s.tooltip}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function PlatformCard({ platform, color, stats, delta }) {
   return (
@@ -12,12 +38,7 @@ export default function PlatformCard({ platform, color, stats, delta }) {
         )}
       </div>
       <div className={styles.stats}>
-        {stats.map((s, i) => (
-          <div key={i} className={styles.stat}>
-            <span className={styles.label}>{s.label}</span>
-            <span className={styles.value} style={{ color: s.color ?? "#e2e8f0" }}>{s.value}</span>
-          </div>
-        ))}
+        {stats.map((s, i) => <StatWithTooltip key={i} s={s} />)}
       </div>
     </div>
   );

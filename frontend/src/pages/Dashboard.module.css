@@ -14,14 +14,19 @@
 .platformBadges { display: flex; gap: 16px; flex-wrap: wrap; }
 .badge { font-size: 13px; font-weight: 600; background: #1e2330; border: 1px solid #2d3748; padding: 6px 12px; border-radius: 99px; }
 
-/* nav actions */
-.navActions { display: flex; align-items: center; gap: 4px; }
-.navBtn {
-  padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
-  cursor: pointer; border: 1px solid #2d3748; background: #1e2330;
-  transition: border-color 0.15s, background 0.15s;
+/* nav actions — pill group */
+.navActions {
+  display: flex; align-items: center;
+  background: #1a1f2e; border: 1px solid #2d3748; border-radius: 10px;
+  padding: 3px; gap: 2px;
 }
-.navBtn:hover { background: #252b3b; border-color: #3d4a60; }
+.navBtn {
+  padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: none; background: transparent; color: #64748b;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.navBtn:hover { background: #252b3b; color: #e2e8f0; }
 
 /* avatar dropdown */
 .avatarMenu {

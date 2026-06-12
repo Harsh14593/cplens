@@ -37,6 +37,43 @@ export default function Dashboard() {
     navigate("/");
   }
 
+  const CF_RANKS = [
+    { label: "Newbie",                  min: 0,    max: 1199, color: "#808080" },
+    { label: "Pupil",                   min: 1200, max: 1399, color: "#008000" },
+    { label: "Specialist",              min: 1400, max: 1599, color: "#03a89e" },
+    { label: "Expert",                  min: 1600, max: 1899, color: "#0000ff" },
+    { label: "Candidate Master",        min: 1900, max: 2099, color: "#aa00aa" },
+    { label: "Master",                  min: 2100, max: 2299, color: "#ff8c00" },
+    { label: "International Master",    min: 2300, max: 2399, color: "#ff8c00" },
+    { label: "Grandmaster",             min: 2400, max: 2599, color: "#ff0000" },
+    { label: "International Grandmaster", min: 2600, max: 2999, color: "#ff0000" },
+    { label: "Legendary Grandmaster",  min: 3000, max: Infinity, color: "#ff0000" },
+  ];
+
+  function cfRankTooltip(rating) {
+    return (
+      <div>
+        <div style={{ fontSize: 11, color: "#475569", letterSpacing: "1px", marginBottom: 10, textTransform: "uppercase" }}>CF Rating Thresholds</div>
+        {CF_RANKS.map(r => {
+          const active = rating >= r.min && rating <= r.max;
+          return (
+            <div key={r.label} style={{
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              padding: "4px 8px", borderRadius: 6, marginBottom: 2,
+              background: active ? r.color + "20" : "transparent",
+              border: active ? `1px solid ${r.color}40` : "1px solid transparent",
+            }}>
+              <span style={{ fontSize: 12, fontWeight: active ? 700 : 400, color: active ? r.color : "#64748b" }}>{r.label}</span>
+              <span style={{ fontSize: 11, color: active ? r.color : "#374151" }}>
+                {r.max === Infinity ? `${r.min}+` : `${r.min}–${r.max}`}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
   async function handleEditSave(e) {
     e.preventDefault();
     await saveHandles(editForm.cf, editForm.lc, editForm.cc);
@@ -246,7 +283,7 @@ export default function Dashboard() {
                   delta={cfDelta}
                   stats={[
                     { label: "Rating", value: data.user.rating ?? "—", color: getRatingColor(data.user.rating) },
-                    { label: "Rank", value: data.user.rank ?? "—" },
+                    { label: "Rank", value: data.user.rank ?? "—", tooltip: data.user.rating ? cfRankTooltip(data.user.rating) : null },
                     { label: "Max Rating", value: data.user.maxRating ?? "—", color: getRatingColor(data.user.maxRating) },
                     { label: "Contests", value: data.contests?.length ?? "—" },
                   ]}

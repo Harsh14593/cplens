@@ -32,6 +32,14 @@ export function buildBreakdown({ user, lc, cc }) {
   ];
 }
 
+const WEIGHT_EXPLANATION = `Weights reflect each platform's rating rigor.
+
+CF (40%) and LC (40%) both use Elo-style contest ratings with large competitive pools — their ratings are directly comparable.
+
+CC (20%) uses a simpler rating scale with fewer contest participants, so it contributes less to avoid inflating scores.
+
+If a platform isn't connected, its weight is redistributed proportionally across the others.`;
+
 export default function CPScore({ score, user, lc, cc }) {
   if (score === null || score === undefined) return null;
 
@@ -103,8 +111,14 @@ export default function CPScore({ score, user, lc, cc }) {
       <div style={{ height: 1, background: "#1e2330", margin: "24px 0 20px" }} />
 
       {/* breakdown */}
-      <div style={{ fontSize: 11, color: "#475569", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 14 }}>
-        How it's calculated
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+        <span style={{ fontSize: 11, color: "#475569", letterSpacing: "1.5px", textTransform: "uppercase" }}>How it's calculated</span>
+        <span title={WEIGHT_EXPLANATION} style={{
+          width: 16, height: 16, borderRadius: "50%", background: "#1e2330",
+          border: "1px solid #2d3748", fontSize: 10, color: "#475569",
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          cursor: "help", flexShrink: 0,
+        }}>?</span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {breakdown.filter(p => p.rating !== null).map(({ label, color, rating, max, weight, weightLabel }) => {
