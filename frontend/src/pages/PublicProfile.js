@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { analyzeCodeforces, analyzeLeetcode, analyzeCodechef, getCFUser, getCFContests } from "../api";
-import CPScore, { computeCPScore } from "../components/CPScore";
+import { computeCPScore } from "../components/CPScore";
+import { TIERS } from "../components/CPScore";
 import PlatformCard from "../components/PlatformCard";
 import SkillRadar from "../components/SkillRadar";
 import ActivityHeatmap from "../components/ActivityHeatmap";
@@ -67,6 +68,15 @@ export default function PublicProfile() {
   );
 
   const score = computeCPScore({ user: data.user, lc: data.lc, cc: data.cc });
+  const tier  = score !== null ? (TIERS.find(t => score >= t.min) ?? TIERS[TIERS.length - 1]) : null;
+  const primaryHandle = cfHandle || lcUsername || ccUsername;
+
+  const heroBadges = [
+    data.user?.rank && { label: data.user.rank, color: getRatingColor(data.user.rating) },
+    data.user?.rating && { label: `CF ${data.user.rating}`, color: "#6366f1" },
+    data.lc?.contest_ranking?.topPercentage && { label: `Top ${data.lc.contest_ranking.topPercentage.toFixed(1)}% LC`, color: "#f59e0b" },
+    data.cc?.stars && { label: `${data.cc.stars} CC`, color: "#22c55e" },
+  ].filter(Boolean);
 
   return (
     <div className={styles.page}>
@@ -74,7 +84,6 @@ export default function PublicProfile() {
       <header className={styles.header}>
         <h1 className={styles.logo} onClick={() => navigate("/")}>CP<span>Lens</span></h1>
         <div className={styles.headerRight}>
-          <span className={styles.handle}>{cfHandle || lcUsername || ccUsername}</span>
           <button className={styles.shareBtn} onClick={copyLink}>
             {copied ? "✓ Copied!" : "Copy Link"}
           </button>
@@ -84,13 +93,45 @@ export default function PublicProfile() {
         </div>
       </header>
 
-      <main className={styles.main}>
-        {/* CP Score */}
-        {score !== null && (
-          <div className={styles.scoreWrap}>
-            <CPScore score={score} user={data.user} lc={data.lc} cc={data.cc} />
+      {/* hero banner */}
+      {(data.user || score !== null) && (
+        <div className={styles.heroBanner}>
+          <div className={styles.heroInner}
+            style={{ background: `linear-gradient(135deg, ${tier?.color ?? "#6366f1"}08, #1a1f2e)`, borderColor: (tier?.color ?? "#6366f1") + "30", color: tier?.color ?? "#6366f1" }}>
+
+            {data.user?.titlePhoto ? (
+              <img src={data.user.titlePhoto.replace("http://", "https://")} alt=""
+                className={styles.heroAvatar} style={{ borderColor: (tier?.color ?? "#6366f1") + "60" }} />
+            ) : (
+              <div className={styles.heroAvatarFallback} style={{ borderColor: (tier?.color ?? "#6366f1") + "60", color: tier?.color ?? "#6366f1" }}>
+                {primaryHandle?.[0]?.toUpperCase()}
+              </div>
+            )}
+
+            <div className={styles.heroInfo}>
+              <div className={styles.heroHandle}>{primaryHandle}</div>
+              <div className={styles.heroBadges}>
+                {heroBadges.map((b, i) => (
+                  <span key={i} className={styles.heroBadge}
+                    style={{ color: b.color, borderColor: b.color + "40", background: b.color + "10" }}>
+                    {b.label}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {score !== null && (
+              <div className={styles.heroRight}>
+                <div className={styles.heroScoreLabel}>CP Score</div>
+                <div className={styles.heroScore} style={{ color: tier?.color ?? "#6366f1" }}>{score}</div>
+                <div className={styles.heroTier} style={{ color: tier?.color ?? "#6366f1" }}>{tier?.label}</div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
+      )}
+
+      <main className={styles.main}>
 
         {/* platform cards */}
         <div className={styles.platformRow}>
