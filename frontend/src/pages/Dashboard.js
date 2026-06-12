@@ -97,16 +97,14 @@ export default function Dashboard() {
     <div className={styles.page}>
       <header className={styles.header}>
         <h1 onClick={() => navigate("/")} className={styles.logo}>CP<span>Lens</span></h1>
-        <div className={styles.headerRight}>
-          <button onClick={shareProfile} style={{
-            padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600,
-            cursor: "pointer", border: "1px solid #2d3748", background: copied ? "#1a2e1a" : "#1e2330",
-            color: copied ? "#22c55e" : "#e2e8f0", transition: "all 0.2s",
-          }}>
-            {copied ? "✓ Link Copied!" : "Share Profile"}
-          </button>
-        </div>
         <div className={styles.platformBadges}>
+          <button onClick={shareProfile} style={{
+            padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600,
+            cursor: "pointer", border: "1px solid #2d3748", background: copied ? "#1a2e1a" : "#1e2330",
+            color: copied ? "#22c55e" : "#94a3b8", transition: "all 0.2s",
+          }}>
+            {copied ? "✓ Copied!" : "Share →"}
+          </button>
           {data.user && (
             <span className={styles.badge} style={{ color: getRatingColor(data.user.rating) }}>
               CF {data.user.rating ?? "—"} · {data.user.rank}
