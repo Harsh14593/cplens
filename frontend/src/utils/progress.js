@@ -1,21 +1,23 @@
 import { collection, doc, setDoc, getDocs, query, orderBy, limit } from "firebase/firestore";
 import { db } from "../firebase";
 
-export async function saveLeaderboardEntry(uid, { displayName, photoURL, cfHandle, lcUsername, ccUsername, cfRating, lcRating, ccRating, cpScore, tier, tierColor }) {
+export async function saveLeaderboardEntry(uid, { displayName, photoURL, cfHandle, lcUsername, ccUsername, cfRating, lcRating, ccRating, cpScore, tier, tierColor, achievementCount, earnedIds }) {
   const ref = doc(db, "leaderboard", uid);
   await setDoc(ref, {
-    displayName: displayName ?? "Anonymous",
-    photoURL:    photoURL    ?? null,
-    cfHandle:    cfHandle    ?? null,
-    lcUsername:  lcUsername  ?? null,
-    ccUsername:  ccUsername  ?? null,
-    cfRating:    cfRating    ?? null,
-    lcRating:    lcRating    ?? null,
-    ccRating:    ccRating    ?? null,
-    cpScore:     cpScore     ?? 0,
-    tier:        tier        ?? "Beginner",
-    tierColor:   tierColor   ?? "#64748b",
-    updatedAt:   new Date().toISOString(),
+    displayName:      displayName      ?? "Anonymous",
+    photoURL:         photoURL         ?? null,
+    cfHandle:         cfHandle         ?? null,
+    lcUsername:       lcUsername       ?? null,
+    ccUsername:       ccUsername       ?? null,
+    cfRating:         cfRating         ?? null,
+    lcRating:         lcRating         ?? null,
+    ccRating:         ccRating         ?? null,
+    cpScore:          cpScore          ?? 0,
+    tier:             tier             ?? "Beginner",
+    tierColor:        tierColor        ?? "#64748b",
+    achievementCount: achievementCount ?? 0,
+    earnedIds:        earnedIds        ?? [],
+    updatedAt:        new Date().toISOString(),
   });
 }
 

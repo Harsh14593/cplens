@@ -3,6 +3,53 @@ import { useNavigate } from "react-router-dom";
 import { getLeaderboard } from "../utils/progress";
 import styles from "./Leaderboard.module.css";
 
+const TIER_COLORS = { platinum: "#a855f7", gold: "#f59e0b", silver: "#94a3b8", bronze: "#cd7f32" };
+const ACHIEVEMENT_META = {
+  streak_7: { icon: "🔥", tier: "bronze" }, streak_30: { icon: "🔥", tier: "silver" },
+  streak_100: { icon: "🔥", tier: "gold" }, streak_365: { icon: "🔥", tier: "platinum" },
+  cf_1200: { icon: "⚡", tier: "bronze" }, cf_1400: { icon: "⚡", tier: "silver" },
+  cf_1600: { icon: "⚡", tier: "silver" }, cf_1900: { icon: "⚡", tier: "gold" },
+  cf_2100: { icon: "⚡", tier: "platinum" },
+  cf_10c: { icon: "🏁", tier: "bronze" }, cf_25c: { icon: "🏁", tier: "silver" }, cf_50c: { icon: "🏁", tier: "gold" },
+  lc_50: { icon: "🧩", tier: "bronze" }, lc_100: { icon: "🧩", tier: "silver" },
+  lc_250: { icon: "🧩", tier: "gold" }, lc_500: { icon: "🧩", tier: "platinum" },
+  lc_top10: { icon: "🏆", tier: "silver" }, lc_top5: { icon: "🏆", tier: "gold" }, lc_top1: { icon: "🏆", tier: "platinum" },
+  cc_3star: { icon: "⭐", tier: "bronze" }, cc_4star: { icon: "⭐", tier: "silver" }, cc_5star: { icon: "⭐", tier: "gold" },
+  multi: { icon: "🌐", tier: "gold" },
+  cp_1500: { icon: "💎", tier: "silver" }, cp_2000: { icon: "💎", tier: "gold" }, cp_2500: { icon: "💎", tier: "platinum" },
+};
+
+// pick top 4 badges by tier priority
+function topBadges(earnedIds = [], max = 4) {
+  const order = ["platinum", "gold", "silver", "bronze"];
+  return [...earnedIds]
+    .sort((a, b) => order.indexOf(ACHIEVEMENT_META[a]?.tier) - order.indexOf(ACHIEVEMENT_META[b]?.tier))
+    .slice(0, max);
+}
+
+function AchievementPills({ earnedIds = [], count, max = 4 }) {
+  const badges = topBadges(earnedIds, max);
+  if (!count && !badges.length) return null;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
+      {badges.map(id => {
+        const m = ACHIEVEMENT_META[id];
+        if (!m) return null;
+        return (
+          <span key={id} style={{
+            fontSize: 13, background: TIER_COLORS[m.tier] + "20",
+            border: `1px solid ${TIER_COLORS[m.tier]}40`,
+            borderRadius: 6, padding: "1px 5px",
+          }}>{m.icon}</span>
+        );
+      })}
+      {count > max && (
+        <span style={{ fontSize: 10, color: "#475569" }}>+{count - max}</span>
+      )}
+    </div>
+  );
+}
+
 const PODIUM_ORDER = [1, 0, 2]; // 2nd, 1st, 3rd
 const PODIUM_HEIGHTS = { 0: 32, 1: 0, 2: 48 }; // padding-bottom for base block
 const MEDAL_COLORS = { 0: "#fbbf24", 1: "#94a3b8", 2: "#cd7f32" };
@@ -39,6 +86,11 @@ function PodiumCard({ row, rank, navigate }) {
         <div className={styles.podiumHandles}>{handles}</div>
         <div className={styles.podiumScore} style={{ color }}>{row.cpScore}</div>
         <div className={styles.podiumTier} style={{ color }}>{row.tier}</div>
+        {row.earnedIds?.length > 0 && (
+          <div style={{ marginTop: 10, display: "flex", justifyContent: "center" }}>
+            <AchievementPills earnedIds={row.earnedIds} count={row.achievementCount} max={3} />
+          </div>
+        )}
       </div>
 
       <div className={styles.podiumBase}
@@ -75,7 +127,10 @@ function TableRow({ row, rank, navigate }) {
 
       <div className={styles.tableInfo}>
         <div className={styles.tableName}>{row.displayName || "Anonymous"}</div>
-        <div className={styles.tableHandles}>{handles}</div>
+        <div className={styles.tableHandles} style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <span>{handles}</span>
+          {row.earnedIds?.length > 0 && <AchievementPills earnedIds={row.earnedIds} count={row.achievementCount} max={4} />}
+        </div>
       </div>
 
       <div className={styles.tableScores}>

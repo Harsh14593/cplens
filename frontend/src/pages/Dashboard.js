@@ -20,7 +20,7 @@ import { useAuth } from "../contexts/AuthContext";
 import ProgressTracker from "../components/ProgressTracker";
 import { saveSnapshot, getSnapshots, calcDelta, saveLeaderboardEntry } from "../utils/progress";
 import { TIERS } from "../components/CPScore";
-import Achievements from "../components/Achievements";
+import Achievements, { computeAchievements } from "../components/Achievements";
 
 export default function Dashboard() {
   const [params] = useSearchParams();
@@ -161,8 +161,10 @@ export default function Dashboard() {
     if (!user || loading || (!data.user && !data.lc && !data.cc)) return;
     async function persist() {
       try {
-        const cpScore = computeCPScore({ user: data.user, lc: data.lc, cc: data.cc });
-        const tier    = TIERS.find(t => cpScore >= t.min) ?? TIERS[TIERS.length - 1];
+        const cpScore      = computeCPScore({ user: data.user, lc: data.lc, cc: data.cc });
+        const tier         = TIERS.find(t => cpScore >= t.min) ?? TIERS[TIERS.length - 1];
+        const achievements = computeAchievements({ data, cpScore });
+        const earnedIds    = achievements.filter(a => a.earned).map(a => a.id);
         await Promise.all([
           saveSnapshot(user.uid, {
             cfRating: data.user?.rating ?? null,
@@ -171,17 +173,19 @@ export default function Dashboard() {
             cpScore,
           }),
           saveLeaderboardEntry(user.uid, {
-            displayName: user.displayName,
-            photoURL:    user.photoURL,
-            cfHandle:    cfHandle    ?? null,
-            lcUsername:  lcUsername  ?? null,
-            ccUsername:  ccUsername  ?? null,
-            cfRating:    data.user?.rating ?? null,
-            lcRating:    data.lc?.contest_ranking?.rating ?? null,
-            ccRating:    data.cc?.rating ?? null,
+            displayName:      user.displayName,
+            photoURL:         user.photoURL,
+            cfHandle:         cfHandle    ?? null,
+            lcUsername:       lcUsername  ?? null,
+            ccUsername:       ccUsername  ?? null,
+            cfRating:         data.user?.rating ?? null,
+            lcRating:         data.lc?.contest_ranking?.rating ?? null,
+            ccRating:         data.cc?.rating ?? null,
             cpScore,
-            tier:        tier.label,
-            tierColor:   tier.color,
+            tier:             tier.label,
+            tierColor:        tier.color,
+            achievementCount: earnedIds.length,
+            earnedIds,
           }),
         ]);
         const snaps = await getSnapshots(user.uid);
