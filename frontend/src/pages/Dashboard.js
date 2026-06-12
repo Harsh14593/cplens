@@ -20,6 +20,7 @@ import { useAuth } from "../contexts/AuthContext";
 import ProgressTracker from "../components/ProgressTracker";
 import { saveSnapshot, getSnapshots, calcDelta, saveLeaderboardEntry } from "../utils/progress";
 import { TIERS } from "../components/CPScore";
+import Achievements from "../components/Achievements";
 
 export default function Dashboard() {
   const [params] = useSearchParams();
@@ -323,6 +324,11 @@ export default function Dashboard() {
                 <ActivityHeatmap cfActivity={data.cf?.activity} lcActivity={data.lc?.activity} ccRatingHistory={data.cc?.rating_history} />
               </div>
             )}
+
+            <div className={`${styles.card} ${styles.fullWidth}`} style={{ marginBottom: 8 }}>
+              <h2>Achievements</h2>
+              <Achievements data={data} cpScore={computeCPScore({ user: data.user, lc: data.lc, cc: data.cc })} />
+            </div>
 
             <div className={styles.card} style={{ marginBottom: 8 }}>
               <h2>AI Study Plan</h2>

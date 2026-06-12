@@ -10,6 +10,7 @@ import LCProblemsChart from "../components/LCProblemsChart";
 import CCRatingChart from "../components/CCRatingChart";
 import RatingChart from "../components/RatingChart";
 import LCContestChart from "../components/LCContestChart";
+import Achievements from "../components/Achievements";
 import styles from "./PublicProfile.module.css";
 
 function getRatingColor(r) {
@@ -133,6 +134,12 @@ export default function PublicProfile() {
       )}
 
       <main className={styles.main}>
+
+        {/* achievements */}
+        <div className={styles.card} style={{ marginBottom: 24 }}>
+          <h2>Achievements</h2>
+          <Achievements data={data} cpScore={computeCPScore({ user: data.user, lc: data.lc, cc: data.cc })} />
+        </div>
 
         {/* platform cards */}
         <div className={styles.platformRow}>
