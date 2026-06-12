@@ -89,6 +89,7 @@ export default function Dashboard() {
     navigate(`/dashboard?${p.toString()}`);
   }
   const [data, setData] = useState({ cf: null, lc: null, cc: null, user: null, contests: null, cfRecs: null, lcRecs: null, ccRecs: null });
+  const [apiErrors, setApiErrors] = useState({ cf: false, lc: false, cc: false });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
@@ -135,6 +136,11 @@ export default function Dashboard() {
           lcUsername ? getLCRecommendations(lcUsername) : Promise.resolve(null),
           ccUsername ? getCCRecommendations(ccUsername) : Promise.resolve(null),
         ]);
+        const cfFailed = cfHandle  && (results[0].status === "rejected" || results[2].status === "rejected");
+        const lcFailed = lcUsername && results[1].status === "rejected";
+        const ccFailed = ccUsername && results[5].status === "rejected";
+        setApiErrors({ cf: !!cfFailed, lc: !!lcFailed, cc: !!ccFailed });
+
         const cf   = results[0].value?.data ?? null;
         const lc   = results[1].value?.data ?? null;
         const cfU  = results[2].value?.data ?? null;
@@ -306,6 +312,51 @@ export default function Dashboard() {
 
         {activeTab === "overview" && (
           <>
+            {/* ── per-platform API error banners ── */}
+            {(apiErrors.cf || apiErrors.lc || apiErrors.cc) && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
+                {apiErrors.cf && (
+                  <div style={{ background: "#2d1b1b", border: "1px solid #ef4444", borderRadius: 10, padding: "10px 16px", color: "#fca5a5", fontSize: 13, display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontSize: 16 }}>⚠</span>
+                    <span>Couldn't load <b>Codeforces</b> data for <b>{cfHandle}</b> — handle may be wrong or the API is down.</span>
+                    <button onClick={() => { setEditForm({ cf: cfHandle||"", lc: lcUsername||"", cc: ccUsername||"" }); setEditOpen(true); }} style={{ marginLeft: "auto", background: "none", border: "1px solid #ef4444", borderRadius: 6, color: "#fca5a5", padding: "3px 10px", cursor: "pointer", fontSize: 12 }}>Fix handle</button>
+                  </div>
+                )}
+                {apiErrors.lc && (
+                  <div style={{ background: "#2d1b1b", border: "1px solid #ef4444", borderRadius: 10, padding: "10px 16px", color: "#fca5a5", fontSize: 13, display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontSize: 16 }}>⚠</span>
+                    <span>Couldn't load <b>LeetCode</b> data for <b>{lcUsername}</b> — handle may be wrong or the API is down.</span>
+                    <button onClick={() => { setEditForm({ cf: cfHandle||"", lc: lcUsername||"", cc: ccUsername||"" }); setEditOpen(true); }} style={{ marginLeft: "auto", background: "none", border: "1px solid #ef4444", borderRadius: 6, color: "#fca5a5", padding: "3px 10px", cursor: "pointer", fontSize: 12 }}>Fix handle</button>
+                  </div>
+                )}
+                {apiErrors.cc && (
+                  <div style={{ background: "#2d1b1b", border: "1px solid #ef4444", borderRadius: 10, padding: "10px 16px", color: "#fca5a5", fontSize: 13, display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontSize: 16 }}>⚠</span>
+                    <span>Couldn't load <b>CodeChef</b> data for <b>{ccUsername}</b> — handle may be wrong or the API is down.</span>
+                    <button onClick={() => { setEditForm({ cf: cfHandle||"", lc: lcUsername||"", cc: ccUsername||"" }); setEditOpen(true); }} style={{ marginLeft: "auto", background: "none", border: "1px solid #ef4444", borderRadius: 6, color: "#fca5a5", padding: "3px 10px", cursor: "pointer", fontSize: 12 }}>Fix handle</button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── profile completion nudge (signed-in, missing platforms) ── */}
+            {user && (!cfHandle || !lcUsername || !ccUsername) && (
+              <div style={{ background: "#1a1f2e", border: "1px solid #3b4a6b", borderRadius: 10, padding: "12px 16px", marginBottom: 20, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 18 }}>📊</span>
+                <div style={{ flex: 1, minWidth: 200 }}>
+                  <div style={{ color: "#e2e8f0", fontSize: 13, fontWeight: 600, marginBottom: 2 }}>
+                    Your CP Score is incomplete
+                  </div>
+                  <div style={{ color: "#94a3b8", fontSize: 12 }}>
+                    Connect {[!cfHandle && "Codeforces", !lcUsername && "LeetCode", !ccUsername && "CodeChef"].filter(Boolean).join(", ")} to get a full picture of your ranking.
+                  </div>
+                </div>
+                <button onClick={() => { setEditForm({ cf: cfHandle||"", lc: lcUsername||"", cc: ccUsername||"" }); setEditOpen(true); }} style={{ background: "#6366f1", border: "none", borderRadius: 8, color: "#fff", padding: "8px 16px", cursor: "pointer", fontSize: 13, fontWeight: 600, whiteSpace: "nowrap" }}>
+                  Add handles
+                </button>
+              </div>
+            )}
+
             {(() => {
               const score = computeCPScore({ user: data.user, lc: data.lc, cc: data.cc });
               return score !== null ? <div style={{ marginBottom: 24 }}><CPScore score={score} user={data.user} lc={data.lc} cc={data.cc} /></div> : null;
