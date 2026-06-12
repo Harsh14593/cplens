@@ -23,7 +23,8 @@ export async function getLeaderboard() {
   const ref  = collection(db, "leaderboard");
   const snap = await getDocs(ref);
   const rows = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
-  return rows.sort((a, b) => (b.cpScore ?? 0) - (a.cpScore ?? 0));
+  rows.sort((a, b) => (b.cpScore ?? 0) - (a.cpScore ?? 0));
+  return rows;
 }
 
 const today = () => new Date().toISOString().slice(0, 10); // YYYY-MM-DD

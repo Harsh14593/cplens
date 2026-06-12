@@ -107,7 +107,7 @@ export default function Dashboard() {
   // Separate effect: save to Firestore once BOTH user auth AND data are ready.
   // This fires even if auth resolves after the initial fetch.
   useEffect(() => {
-    if (!user || loading || !data.user) return;
+    if (!user || loading || (!data.user && !data.lc && !data.cc)) return;
     async function persist() {
       try {
         const cpScore = computeCPScore({ user: data.user, lc: data.lc, cc: data.cc });
