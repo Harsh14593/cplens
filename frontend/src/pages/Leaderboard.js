@@ -1,19 +1,115 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getLeaderboard } from "../utils/progress";
-import styles from "./Dashboard.module.css";
+import styles from "./Leaderboard.module.css";
 
-const MEDALS = ["🥇", "🥈", "🥉"];
+const PODIUM_ORDER = [1, 0, 2]; // 2nd, 1st, 3rd
+const PODIUM_HEIGHTS = { 0: 32, 1: 0, 2: 48 }; // padding-bottom for base block
+const MEDAL_COLORS = { 0: "#fbbf24", 1: "#94a3b8", 2: "#cd7f32" };
+const MEDAL_LABELS = { 0: "🥇", 1: "🥈", 2: "🥉" };
+const BASE_HEIGHTS = { 0: 52, 1: 36, 2: 24 };
 
-function getRankStyle(rank) {
-  if (rank === 0) return { color: "#fbbf24", fontWeight: 800 };
-  if (rank === 1) return { color: "#94a3b8", fontWeight: 700 };
-  if (rank === 2) return { color: "#cd7f32", fontWeight: 700 };
-  return { color: "#475569", fontWeight: 500 };
+function PodiumCard({ row, rank, navigate }) {
+  const color = row.tierColor || MEDAL_COLORS[rank];
+  const handles = [row.cfHandle, row.lcUsername, row.ccUsername].filter(Boolean).join(" · ");
+
+  function goToProfile() {
+    const p = new URLSearchParams();
+    if (row.cfHandle)   p.set("codeforces", row.cfHandle);
+    if (row.lcUsername) p.set("leetcode",   row.lcUsername);
+    if (row.ccUsername) p.set("codechef",   row.ccUsername);
+    navigate(`/u?${p.toString()}`);
+  }
+
+  return (
+    <div className={styles.podiumSlot} style={{ paddingBottom: PODIUM_HEIGHTS[rank] }}>
+      <div className={styles.podiumCard} style={{ color, borderColor: color + "40" }} onClick={goToProfile}>
+        <div className={styles.podiumRank}>{MEDAL_LABELS[rank]}</div>
+
+        {row.photoURL ? (
+          <img src={row.photoURL} alt="" className={styles.podiumAvatar}
+            style={{ borderColor: color + "60" }} referrerPolicy="no-referrer" />
+        ) : (
+          <div className={styles.podiumAvatar} style={{ borderColor: color + "60", color }}>
+            {(row.displayName || "?")[0]}
+          </div>
+        )}
+
+        <div className={styles.podiumName}>{row.displayName || "Anonymous"}</div>
+        <div className={styles.podiumHandles}>{handles}</div>
+        <div className={styles.podiumScore} style={{ color }}>{row.cpScore}</div>
+        <div className={styles.podiumTier} style={{ color }}>{row.tier}</div>
+      </div>
+
+      <div className={styles.podiumBase}
+        style={{ height: BASE_HEIGHTS[rank], background: color + "22", borderColor: color + "40",
+          border: `1px solid`, borderTop: "none", color }}>
+        #{rank + 1}
+      </div>
+    </div>
+  );
+}
+
+function TableRow({ row, rank, navigate }) {
+  const handles = [row.cfHandle, row.lcUsername, row.ccUsername].filter(Boolean).join(" · ");
+
+  function goToProfile() {
+    const p = new URLSearchParams();
+    if (row.cfHandle)   p.set("codeforces", row.cfHandle);
+    if (row.lcUsername) p.set("leetcode",   row.lcUsername);
+    if (row.ccUsername) p.set("codechef",   row.ccUsername);
+    navigate(`/u?${p.toString()}`);
+  }
+
+  return (
+    <div className={styles.tableRow} onClick={goToProfile}>
+      <div className={styles.tableRank}>#{rank + 1}</div>
+
+      {row.photoURL ? (
+        <img src={row.photoURL} alt="" className={styles.tableAvatar} referrerPolicy="no-referrer" />
+      ) : (
+        <div className={styles.tableAvatarFallback}>
+          {(row.displayName || "?")[0]}
+        </div>
+      )}
+
+      <div className={styles.tableInfo}>
+        <div className={styles.tableName}>{row.displayName || "Anonymous"}</div>
+        <div className={styles.tableHandles}>{handles}</div>
+      </div>
+
+      <div className={styles.tableScores}>
+        <div className={styles.platformRatings}>
+          {row.cfRating && (
+            <div className={styles.platformRating}>
+              <div className={styles.platformRatingVal} style={{ color: "#6366f1" }}>{row.cfRating}</div>
+              <div className={styles.platformRatingKey}>CF</div>
+            </div>
+          )}
+          {row.lcRating && (
+            <div className={styles.platformRating}>
+              <div className={styles.platformRatingVal} style={{ color: "#f59e0b" }}>{Math.round(row.lcRating)}</div>
+              <div className={styles.platformRatingKey}>LC</div>
+            </div>
+          )}
+          {row.ccRating && (
+            <div className={styles.platformRating}>
+              <div className={styles.platformRatingVal} style={{ color: "#22c55e" }}>{row.ccRating}</div>
+              <div className={styles.platformRatingKey}>CC</div>
+            </div>
+          )}
+        </div>
+        <div className={styles.cpScoreBlock}>
+          <div className={styles.cpScoreVal} style={{ color: row.tierColor }}>{row.cpScore}</div>
+          <div className={styles.cpScoreTier} style={{ color: row.tierColor }}>{row.tier}</div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function Leaderboard() {
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
   const [rows, setRows]       = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -21,100 +117,47 @@ export default function Leaderboard() {
     getLeaderboard().then(data => { setRows(data); setLoading(false); });
   }, []);
 
+  const top3   = rows.slice(0, 3);
+  const rest   = rows.slice(3);
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <h1 onClick={() => navigate("/")} className={styles.logo} style={{ cursor: "pointer" }}>
-          CP<span>Lens</span>
-        </h1>
-        <div style={{ fontSize: 13, color: "#475569" }}>
-          {rows.length} competitors ranked
-        </div>
+        <h1 className={styles.logo} onClick={() => navigate("/")}>CP<span>Lens</span></h1>
+        <div className={styles.headerMeta}>{rows.length} competitors ranked</div>
       </header>
 
-      <div style={{ maxWidth: 860, margin: "0 auto", padding: "32px 40px 40px" }}>
-        <div style={{ marginBottom: 28 }}>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: "#e2e8f0", margin: 0 }}>Global Leaderboard</h2>
-          <p style={{ color: "#475569", fontSize: 13, marginTop: 6 }}>
-            Ranked by CP Score — sign in and analyze your profile to appear here.
-          </p>
-        </div>
+      <main className={styles.main}>
+        <h2 className={styles.pageTitle}>Global Leaderboard</h2>
+        <p className={styles.pageSubtitle}>Ranked by CP Score — sign in and analyze your profile to appear here.</p>
 
         {loading ? (
-          <div className={styles.center}>
-            <div className={styles.spinner} />
-          </div>
+          <div className={styles.center}><div className={styles.spinner} /></div>
         ) : rows.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "60px 20px", color: "#475569" }}>
-            <div style={{ fontSize: 36, marginBottom: 12 }}>🏆</div>
-            <div style={{ fontSize: 15 }}>No entries yet — be the first!</div>
+          <div className={styles.center}>
+            <div style={{ fontSize: 40 }}>🏆</div>
+            <div>No entries yet — be the first!</div>
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {rows.map((row, i) => (
-              <div
-                key={row.uid}
-                onClick={() => {
-                  const p = new URLSearchParams();
-                  if (row.cfHandle)   p.set("codeforces", row.cfHandle);
-                  if (row.lcUsername) p.set("leetcode",   row.lcUsername);
-                  if (row.ccUsername) p.set("codechef",   row.ccUsername);
-                  navigate(`/u?${p.toString()}`);
-                }}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "44px 44px 1fr auto",
-                  alignItems: "center",
-                  gap: 16,
-                  padding: "14px 20px",
-                  background: i < 3 ? "linear-gradient(135deg, #0f1117, #1a1f2e)" : "#0f1117",
-                  border: `1px solid ${i < 3 ? row.tierColor + "40" : "#1e2330"}`,
-                  borderLeft: `3px solid ${row.tierColor}`,
-                  borderRadius: 12,
-                  cursor: "pointer",
-                  transition: "background 0.15s",
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = "#1a1f2e"}
-                onMouseLeave={e => e.currentTarget.style.background = i < 3 ? "linear-gradient(135deg, #0f1117, #1a1f2e)" : "#0f1117"}
-              >
-                {/* rank */}
-                <div style={{ textAlign: "center", fontSize: i < 3 ? 22 : 14, ...getRankStyle(i) }}>
-                  {i < 3 ? MEDALS[i] : `#${i + 1}`}
-                </div>
-
-                {/* avatar */}
-                {row.photoURL ? (
-                  <img src={row.photoURL} alt="" style={{ width: 36, height: 36, borderRadius: "50%", border: `2px solid ${row.tierColor}40` }} referrerPolicy="no-referrer" />
-                ) : (
-                  <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#1e2330", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>
-                    {(row.displayName || "?")[0]}
-                  </div>
-                )}
-
-                {/* name + handles */}
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: 14, color: "#e2e8f0" }}>{row.displayName || "Anonymous"}</div>
-                  <div style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>
-                    {[row.cfHandle, row.lcUsername, row.ccUsername].filter(Boolean).join(" · ")}
-                  </div>
-                </div>
-
-                {/* scores */}
-                <div style={{ display: "flex", alignItems: "center", gap: 20, textAlign: "right" }}>
-                  <div style={{ display: "none", gap: 16 }} className="platform-ratings">
-                    {row.cfRating && <div style={{ fontSize: 12 }}><span style={{ color: "#3b82f6", fontWeight: 700 }}>{row.cfRating}</span><div style={{ color: "#475569", fontSize: 10 }}>CF</div></div>}
-                    {row.lcRating && <div style={{ fontSize: 12 }}><span style={{ color: "#f59e0b", fontWeight: 700 }}>{Math.round(row.lcRating)}</span><div style={{ color: "#475569", fontSize: 10 }}>LC</div></div>}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 20, fontWeight: 800, color: row.tierColor }}>{row.cpScore}</div>
-                    <div style={{ fontSize: 10, color: row.tierColor, opacity: 0.8, letterSpacing: "0.5px" }}>{row.tier?.toUpperCase()}</div>
-                  </div>
-                </div>
+          <>
+            {top3.length >= 2 && (
+              <div className={styles.podium}>
+                {PODIUM_ORDER.map(i => top3[i] ? (
+                  <PodiumCard key={i} row={top3[i]} rank={i} navigate={navigate} />
+                ) : null)}
               </div>
-            ))}
-          </div>
+            )}
+
+            {rest.length > 0 && (
+              <div className={styles.table}>
+                {rest.map((row, i) => (
+                  <TableRow key={row.uid} row={row} rank={i + 3} navigate={navigate} />
+                ))}
+              </div>
+            )}
+          </>
         )}
-      </div>
+      </main>
     </div>
   );
 }

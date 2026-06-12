@@ -130,6 +130,7 @@ export default function Contests() {
 
   const platforms = ["all", "Codeforces", "LeetCode"];
   const visible   = filter === "all" ? contests : contests.filter(c => c.platform === filter);
+  const next      = contests[0] ?? null;
 
   return (
     <div className={styles.page}>
@@ -153,11 +154,51 @@ export default function Contests() {
       </header>
 
       <div style={{ maxWidth: 860, margin: "0 auto", padding: "32px 40px 40px" }}>
-        <div style={{ marginBottom: 28 }}>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: "#e2e8f0", margin: 0 }}>Upcoming Contests</h2>
-          <p style={{ color: "#475569", fontSize: 13, marginTop: 6 }}>
-            Codeforces + LeetCode · auto-refreshes on page load
-          </p>
+
+        {/* next up hero card */}
+        {!loading && next && (
+          <div style={{
+            marginBottom: 36,
+            background: `linear-gradient(135deg, ${next.color}12 0%, #1a1f2e 60%)`,
+            border: `1px solid ${next.color}30`,
+            borderLeft: `4px solid ${next.color}`,
+            borderRadius: 16,
+            padding: "28px 32px",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+              <span style={{
+                fontSize: 10, fontWeight: 700, color: next.color,
+                background: next.color + "20", padding: "3px 10px", borderRadius: 99,
+                letterSpacing: "1px", textTransform: "uppercase",
+              }}>Up next · {next.platform}</span>
+              <span style={{ fontSize: 11, color: "#475569" }}>{formatDuration(next.duration)}</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, flexWrap: "wrap" }}>
+              <div>
+                <a href={next.url} target="_blank" rel="noreferrer" style={{
+                  fontSize: 20, fontWeight: 800, color: "#f1f5f9",
+                  textDecoration: "none", display: "block", marginBottom: 6,
+                }}
+                  onMouseEnter={e => e.target.style.color = next.color}
+                  onMouseLeave={e => e.target.style.color = "#f1f5f9"}
+                >{next.name}</a>
+                <div style={{ fontSize: 13, color: "#64748b" }}>{formatDate(next.startTime)}</div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: 11, color: "#475569", marginBottom: 6, letterSpacing: "0.5px" }}>STARTS IN</div>
+                <Countdown startTime={next.startTime} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 20 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: "#e2e8f0", margin: 0 }}>
+            {filter === "all" ? "All Upcoming" : filter} Contests
+            <span style={{ fontSize: 13, fontWeight: 500, color: "#475569", marginLeft: 10 }}>
+              {visible.length} found
+            </span>
+          </h2>
         </div>
 
         {loading ? (
@@ -168,7 +209,7 @@ export default function Contests() {
             <div>No upcoming contests found.</div>
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {visible.map(c => <ContestCard key={`${c.platform}-${c.id}`} contest={c} />)}
           </div>
         )}
