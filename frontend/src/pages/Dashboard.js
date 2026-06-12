@@ -189,17 +189,9 @@ export default function Dashboard() {
         <h1 onClick={() => navigate("/")} className={styles.logo}>CP<span>Lens</span></h1>
 
         <nav className={styles.navActions}>
-          <button onClick={() => navigate("/compare")} className={styles.navBtn} style={{ color: "#a855f7" }}>⚔️ Compare</button>
-          <button onClick={() => navigate("/contests")} className={styles.navBtn} style={{ color: "#22c55e" }}>📅 Contests</button>
-          <button onClick={() => navigate("/leaderboard")} className={styles.navBtn} style={{ color: "#f59e0b" }}>🏆 Leaderboard</button>
-          <button onClick={shareProfile} className={styles.navBtn} style={{ color: copied ? "#22c55e" : "#94a3b8" }}>
-            {copied ? "✓ Copied" : "Share →"}
-          </button>
-          {cfHandle && (
-            <button onClick={copyEmbed} className={styles.navBtn} style={{ color: embedCopied ? "#6366f1" : "#94a3b8" }}>
-              {embedCopied ? "✓ Copied" : "README Card"}
-            </button>
-          )}
+          <button onClick={() => navigate("/compare")}     className={styles.navBtn} style={{ color: "#a855f7" }}>Compare</button>
+          <button onClick={() => navigate("/contests")}    className={styles.navBtn} style={{ color: "#22c55e" }}>Contests</button>
+          <button onClick={() => navigate("/leaderboard")} className={styles.navBtn} style={{ color: "#f59e0b" }}>Leaderboard</button>
         </nav>
 
         {user && (
@@ -210,10 +202,19 @@ export default function Dashboard() {
               <div className={styles.avatarDropdownEmail}>{user.email}</div>
               <div className={styles.avatarDropdownDivider} />
               <button className={styles.avatarDropdownItem} onClick={() => { setEditForm({ cf: cfHandle||"", lc: lcUsername||"", cc: ccUsername||"" }); setEditOpen(true); }}>
-                ✏️ Edit handles
+                Edit handles
               </button>
-              <button className={styles.avatarDropdownItem} onClick={handleLogout}>
-                → Sign out
+              <button className={styles.avatarDropdownItem} onClick={shareProfile} style={{ color: copied ? "#22c55e" : undefined }}>
+                {copied ? "✓ Link copied" : "Share profile"}
+              </button>
+              {cfHandle && (
+                <button className={styles.avatarDropdownItem} onClick={copyEmbed} style={{ color: embedCopied ? "#6366f1" : undefined }}>
+                  {embedCopied ? "✓ Copied" : "Copy README card"}
+                </button>
+              )}
+              <div className={styles.avatarDropdownDivider} />
+              <button className={styles.avatarDropdownItem} onClick={handleLogout} style={{ color: "#ef4444" }}>
+                Sign out
               </button>
             </div>
           </div>

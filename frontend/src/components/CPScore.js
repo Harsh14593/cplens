@@ -34,8 +34,17 @@ export function buildBreakdown({ user, lc, cc }) {
 
 export default function CPScore({ score, user, lc, cc }) {
   if (score === null || score === undefined) return null;
-  const tier      = TIERS.find(t => score >= t.min) ?? TIERS[TIERS.length - 1];
-  const pct       = Math.round((score / 3000) * 100);
+
+  const tierIdx  = TIERS.findIndex(t => score >= t.min);
+  const tier     = TIERS[tierIdx] ?? TIERS[TIERS.length - 1];
+  const nextTier = tierIdx > 0 ? TIERS[tierIdx - 1] : null;
+
+  // progress within current tier band toward next tier
+  const tierProgress = nextTier
+    ? Math.round(((score - tier.min) / (nextTier.min - tier.min)) * 100)
+    : 100;
+  const pointsToNext = nextTier ? nextTier.min - score : 0;
+
   const breakdown = buildBreakdown({ user, lc, cc });
   const connected = breakdown.filter(p => p.rating !== null).map(p => p.label);
 
@@ -47,7 +56,7 @@ export default function CPScore({ score, user, lc, cc }) {
     }}>
       <div style={{ position: "absolute", top: "50%", left: "40%", transform: "translateY(-50%)", width: 300, height: 300, borderRadius: "50%", background: tier.color, opacity: 0.05, filter: "blur(60px)", pointerEvents: "none" }} />
 
-      {/* top row: score + ring */}
+      {/* top row: score + tier progress ring */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 32 }}>
         <div>
           <div style={{ fontSize: 11, color: "#475569", letterSpacing: "2.5px", textTransform: "uppercase", marginBottom: 10 }}>Unified CP Score</div>
@@ -61,17 +70,32 @@ export default function CPScore({ score, user, lc, cc }) {
           </div>
         </div>
 
-        <div style={{ flexShrink: 0 }}>
+        {/* tier progress ring */}
+        <div style={{ flexShrink: 0, textAlign: "center" }}>
           <svg width={100} height={100} viewBox="0 0 110 110">
             <circle cx={55} cy={55} r={46} fill="none" stroke="#1e2330" strokeWidth={10} />
             <circle cx={55} cy={55} r={46} fill="none" stroke={tier.color} strokeWidth={10}
               strokeDasharray={`${2 * Math.PI * 46}`}
-              strokeDashoffset={`${2 * Math.PI * 46 * (1 - pct / 100)}`}
+              strokeDashoffset={`${2 * Math.PI * 46 * (1 - tierProgress / 100)}`}
               strokeLinecap="round" transform="rotate(-90 55 55)"
             />
-            <text x={55} y={51} textAnchor="middle" fontSize={22} fontWeight={800} fill={tier.color}>{pct}</text>
-            <text x={55} y={67} textAnchor="middle" fontSize={10} fill="#475569" letterSpacing="1">OF MAX</text>
+            {nextTier ? (
+              <>
+                <text x={55} y={49} textAnchor="middle" fontSize={19} fontWeight={800} fill={tier.color}>{tierProgress}%</text>
+                <text x={55} y={63} textAnchor="middle" fontSize={9} fill="#475569">TO {nextTier.label.toUpperCase()}</text>
+              </>
+            ) : (
+              <>
+                <text x={55} y={52} textAnchor="middle" fontSize={13} fontWeight={800} fill={tier.color}>MAX</text>
+                <text x={55} y={66} textAnchor="middle" fontSize={9} fill="#475569">TIER</text>
+              </>
+            )}
           </svg>
+          {nextTier && (
+            <div style={{ fontSize: 11, color: "#475569", marginTop: 4 }}>
+              {pointsToNext} pts to <span style={{ color: nextTier.color, fontWeight: 700 }}>{nextTier.label}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -90,30 +114,20 @@ export default function CPScore({ score, user, lc, cc }) {
           return (
             <div key={label} style={{ display: "flex", alignItems: "center", gap: 14 }}>
               <span style={{ width: 80, fontSize: 12, color: "#94a3b8", flexShrink: 0 }}>{label}</span>
-
-              {rating ? (
-                <>
-                  <span style={{ width: 42, fontSize: 13, fontWeight: 700, color, flexShrink: 0, textAlign: "right" }}>{rating}</span>
-                  <span style={{ fontSize: 11, color: "#475569", flexShrink: 0 }}>/ {max}</span>
-
-                  <div style={{ flex: 1, height: 6, background: "#1e2330", borderRadius: 99, overflow: "hidden" }}>
-                    <div style={{ width: `${barPct}%`, height: "100%", background: color, borderRadius: 99, transition: "width 0.8s ease" }} />
-                  </div>
-
-                  <span style={{ fontSize: 11, color: "#64748b", flexShrink: 0, width: 28, textAlign: "right" }}>{barPct}%</span>
-                  <span style={{ fontSize: 11, color: "#475569", flexShrink: 0 }}>× {weightLabel}</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color, flexShrink: 0, width: 36, textAlign: "right" }}>+{contrib}</span>
-                </>
-              ) : (
-                <span style={{ fontSize: 12, color: "#374151", fontStyle: "italic" }}>not connected</span>
-              )}
+              <span style={{ width: 42, fontSize: 13, fontWeight: 700, color, flexShrink: 0, textAlign: "right" }}>{rating}</span>
+              <span style={{ fontSize: 11, color: "#475569", flexShrink: 0 }}>/ {max}</span>
+              <div style={{ flex: 1, height: 6, background: "#1e2330", borderRadius: 99, overflow: "hidden" }}>
+                <div style={{ width: `${barPct}%`, height: "100%", background: color, borderRadius: 99, transition: "width 0.8s ease" }} />
+              </div>
+              <span style={{ fontSize: 11, color: "#475569", flexShrink: 0 }}>weight {weightLabel}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color, flexShrink: 0, width: 40, textAlign: "right" }}>+{contrib}</span>
             </div>
           );
         })}
       </div>
 
       <div style={{ marginTop: 16, fontSize: 11, color: "#374151", lineHeight: 1.7 }}>
-        Score = Σ (rating / max × weight) / total_weight × 3000 &nbsp;·&nbsp; Weights redistributed across {connected.length} connected platform{connected.length !== 1 ? "s" : ""}
+        Each platform's contribution = (rating / max) × weight. Weights redistribute across {connected.length} connected platform{connected.length !== 1 ? "s" : ""}.
       </div>
     </div>
   );
