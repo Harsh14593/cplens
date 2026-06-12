@@ -5,6 +5,7 @@ import { computeCPScore } from "../components/CPScore";
 import ActivityHeatmap from "../components/ActivityHeatmap";
 import styles from "./Compare.module.css";
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { getRatingColor } from "../utils/cfColors";
 
 const CF_BUCKETS = {
   "DP":         ["dp","bitmasks"],
@@ -21,14 +22,6 @@ function cfBucketScore(tagStats, tags) {
   const hits = tags.filter(t => tagStats?.[t]?.attempted >= 3);
   if (!hits.length) return 0;
   return Math.round(hits.reduce((a,t) => a + tagStats[t].solved / tagStats[t].attempted, 0) / hits.length * 100);
-}
-
-function getRatingColor(r) {
-  if (!r) return "#94a3b8";
-  if (r >= 2400) return "#ef4444"; if (r >= 2100) return "#ff8c00";
-  if (r >= 1900) return "#a855f7"; if (r >= 1600) return "#3b82f6";
-  if (r >= 1400) return "#03a89e"; if (r >= 1200) return "#22c55e";
-  return "#808080";
 }
 
 async function fetchUser(cf, lc, cc) {

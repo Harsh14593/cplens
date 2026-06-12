@@ -132,7 +132,7 @@ export default function GoalTracker({ data, cpScore, user }) {
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: "#e2e8f0" }}>New Goal</div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12 }}>
             <div>
               <label style={labelStyle}>Platform / Metric</label>
               <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} style={inputStyle}>
@@ -190,7 +190,7 @@ function GoalCard({ goal, onDelete }) {
             {done ? "✓ Done" : pace.label}
           </span>
         </div>
-        <button onClick={onDelete} style={{ background: "none", border: "none", color: "#374151", cursor: "pointer", fontSize: 16, lineHeight: 1 }}>×</button>
+        <button onClick={onDelete} style={{ background: "none", border: "none", color: "#374151", cursor: "pointer", fontSize: 20, lineHeight: 1, padding: "4px 8px", marginRight: -8 }}>×</button>
       </div>
 
       {/* progress bar */}

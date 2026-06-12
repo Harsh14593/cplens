@@ -197,7 +197,7 @@
 
 /* friend action buttons */
 .addFriendBtn {
-  padding: 6px 14px; border-radius: 8px;
+  padding: 9px 16px; border-radius: 8px;
   border: 1px solid #6366f1; background: #6366f118;
   color: #818cf8; font-size: 12px; font-weight: 700;
   cursor: pointer; white-space: nowrap;
@@ -205,7 +205,7 @@
 }
 .addFriendBtn:hover { background: #6366f130; }
 .removeFriendBtn {
-  padding: 6px 14px; border-radius: 8px;
+  padding: 9px 16px; border-radius: 8px;
   border: 1px solid #2d3748; background: none;
   color: #475569; font-size: 12px; font-weight: 600;
   cursor: pointer; white-space: nowrap;
@@ -236,15 +236,25 @@
   .header { padding: 14px 16px; }
   .main { padding: 20px 16px 48px; }
   .pageTitle { font-size: 20px; }
+  .pageSubtitle { margin-bottom: 28px; }
+
+  .tabs { margin-bottom: 20px; }
+  .tab, .tabActive { padding: 8px 14px; font-size: 12px; }
+
+  .searchBar { gap: 8px; }
+  .searchInput { padding: 10px 12px; font-size: 13px; }
+  .searchBtn { padding: 10px 14px; font-size: 12px; }
 
   .podium { gap: 6px; }
   .podiumCard { padding: 14px 10px 12px; }
   .podiumScore { font-size: 22px; }
-  .podiumAvatar { width: 44px; height: 44px; }
+  .podiumAvatar { width: 48px; height: 48px; }
   .podiumName { font-size: 12px; }
 
-  .tableRow { grid-template-columns: 36px 36px 1fr auto; gap: 10px; padding: 12px 14px; }
+  .tableRow { grid-template-columns: 36px 36px 1fr; gap: 8px; padding: 12px 14px; }
   .tableRank { font-size: 11px; }
-  .platformRatings { display: none; }
-  .cpScoreVal { font-size: 16px; }
+  .tableScores { display: none; }
+
+  .addFriendBtn, .removeFriendBtn { display: none; }
+  .youTag { display: none; }
 }

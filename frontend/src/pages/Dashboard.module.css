@@ -21,10 +21,10 @@
   padding: 3px; gap: 2px;
 }
 .navBtn {
-  padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
   cursor: pointer; border: none; background: transparent; color: #64748b;
   transition: background 0.15s, color 0.15s;
-  white-space: nowrap;
+  white-space: nowrap; min-height: 36px;
 }
 .navBtn:hover { background: #252b3b; color: #e2e8f0; }
 
@@ -136,6 +136,9 @@
   .logo { font-size: 22px; }
   .platformBadges { gap: 8px; }
   .badge { display: none; }
+
+  .navActions { gap: 1px; }
+  .navBtn { padding: 8px 10px; font-size: 12px; }
 
   .tabs { padding: 10px 12px; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
   .tabs::-webkit-scrollbar { display: none; }

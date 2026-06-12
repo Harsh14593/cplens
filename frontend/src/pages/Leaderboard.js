@@ -234,7 +234,7 @@ function FriendsTab({ user, allRows, navigate }) {
           className={styles.searchInput}
           placeholder="Search by CF / LC / CC handle…"
           value={query}
-          onChange={e => setQuery(e.target.value)}
+          onChange={e => { setQuery(e.target.value); if (!e.target.value.trim()) setSearchResults(null); }}
         />
         <button type="submit" className={styles.searchBtn} disabled={searching || !query.trim()}>
           {searching ? "…" : "Search"}

@@ -22,6 +22,7 @@ import { saveSnapshot, getSnapshots, calcDelta, saveLeaderboardEntry } from "../
 import { TIERS } from "../components/CPScore";
 import Achievements, { computeAchievements } from "../components/Achievements";
 import GoalTracker from "../components/GoalTracker";
+import { getRatingColor } from "../utils/cfColors";
 
 export default function Dashboard() {
   const [params] = useSearchParams();
@@ -557,7 +558,7 @@ export default function Dashboard() {
         }}>
           <form onClick={e => e.stopPropagation()} onSubmit={handleEditSave} style={{
             background: "#1a1f2e", border: "1px solid #2d3748", borderRadius: 16,
-            padding: "32px 36px", width: 400, display: "flex", flexDirection: "column", gap: 20,
+            padding: "32px 36px", width: "min(400px, 90vw)", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: 20,
           }}>
             <div>
               <div style={{ fontSize: 18, fontWeight: 800, color: "#f1f5f9", marginBottom: 4 }}>Edit handles</div>
@@ -610,14 +611,4 @@ function PlatformStat({ label, value, color }) {
   );
 }
 
-function getRatingColor(rating) {
-  if (!rating) return "#94a3b8";
-  if (rating >= 2400) return "#ff0000";
-  if (rating >= 2100) return "#ff8c00";
-  if (rating >= 1900) return "#aa00aa";
-  if (rating >= 1600) return "#0000ff";
-  if (rating >= 1400) return "#03a89e";
-  if (rating >= 1200) return "#008000";
-  return "#808080";
-}
 

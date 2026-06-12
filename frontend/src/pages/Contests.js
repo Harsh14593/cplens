@@ -59,8 +59,8 @@ function ContestCard({ contest }) {
     <div style={{
       background: "#0f1117", borderRadius: 12,
       border: `1px solid #1e2330`, borderLeft: `3px solid ${contest.color}`,
-      padding: "16px 20px", display: "grid",
-      gridTemplateColumns: "1fr auto", gap: 12, alignItems: "center",
+      padding: "16px 20px", display: "flex",
+      flexWrap: "wrap", gap: 12, alignItems: "center", justifyContent: "space-between",
     }}>
       <div>
         {/* platform badge */}
@@ -97,16 +97,16 @@ function ContestCard({ contest }) {
         <Countdown startTime={contest.startTime} />
         <div style={{ display: "flex", gap: 8 }}>
           <a href={gcalUrl()} target="_blank" rel="noreferrer" style={{
-            fontSize: 11, padding: "5px 12px", borderRadius: 7,
+            fontSize: 12, padding: "8px 14px", borderRadius: 7,
             background: "#1e2330", border: "1px solid #2d3748",
-            color: "#64748b", textDecoration: "none",
+            color: "#64748b", textDecoration: "none", whiteSpace: "nowrap",
           }}>
             + Calendar
           </a>
           <a href={contest.registerUrl || contest.url} target="_blank" rel="noreferrer" style={{
-            fontSize: 11, padding: "5px 12px", borderRadius: 7,
+            fontSize: 12, padding: "8px 14px", borderRadius: 7,
             background: contest.color + "20", border: `1px solid ${contest.color}50`,
-            color: contest.color, textDecoration: "none", fontWeight: 600,
+            color: contest.color, textDecoration: "none", fontWeight: 600, whiteSpace: "nowrap",
           }}>
             Register →
           </a>
@@ -138,11 +138,11 @@ export default function Contests() {
         <h1 onClick={() => navigate("/")} className={styles.logo} style={{ cursor: "pointer" }}>
           CP<span>Lens</span>
         </h1>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, overflowX: "auto", flexShrink: 0 }}>
           {platforms.map(p => (
             <button key={p} onClick={() => setFilter(p)} style={{
-              padding: "5px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600,
-              cursor: "pointer", border: "1px solid #2d3748",
+              padding: "8px 16px", borderRadius: 8, fontSize: 12, fontWeight: 600,
+              cursor: "pointer", border: "1px solid #2d3748", whiteSpace: "nowrap",
               background: filter === p ? "#1a1f35" : "#1e2330",
               color: filter === p ? "#6366f1" : "#64748b",
               transition: "all 0.15s",

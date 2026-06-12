@@ -168,17 +168,26 @@
   border-top: 1px solid #1e2330;
 }
 
+@media (max-width: 1024px) {
+  .featureGrid { grid-template-columns: repeat(2, 1fr); }
+  .inputRow { grid-template-columns: 1fr 1fr; }
+}
+
 @media (max-width: 768px) {
   .nav { padding: 14px 16px; }
   .navLinks { gap: 16px; }
-  .navLink { font-size: 13px; }
+  .navLink { font-size: 13px; padding: 8px 0; }
 
   .hero { padding: 40px 16px 40px; }
   .title { font-size: 34px; letter-spacing: -0.5px; }
   .subtitle { font-size: 15px; }
   .heroBadge { font-size: 10px; }
 
+  .googleBtn { padding: 12px 22px; }
+  .switchBtn { padding: 8px 0; font-size: 13px; }
+
   .inputRow { grid-template-columns: 1fr; }
+  .form button { padding: 14px; font-size: 14px; }
 
   .features { padding: 48px 16px; }
   .featureGrid { grid-template-columns: 1fr; }

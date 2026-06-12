@@ -12,17 +12,7 @@ import RatingChart from "../components/RatingChart";
 import LCContestChart from "../components/LCContestChart";
 import Achievements from "../components/Achievements";
 import styles from "./PublicProfile.module.css";
-
-function getRatingColor(r) {
-  if (!r) return "#94a3b8";
-  if (r >= 2400) return "#ef4444";
-  if (r >= 2100) return "#ff8c00";
-  if (r >= 1900) return "#a855f7";
-  if (r >= 1600) return "#3b82f6";
-  if (r >= 1400) return "#03a89e";
-  if (r >= 1200) return "#22c55e";
-  return "#808080";
-}
+import { getRatingColor } from "../utils/cfColors";
 
 export default function PublicProfile() {
   const [params] = useSearchParams();
