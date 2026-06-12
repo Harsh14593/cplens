@@ -144,3 +144,21 @@
   animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 768px) {
+  .header { padding: 14px 16px; }
+  .headerRight { gap: 8px; }
+  .analyzeBtn, .shareBtn { padding: 6px 12px; font-size: 12px; }
+
+  .heroBanner { padding: 16px 16px 0; }
+  .heroInner { flex-direction: column; align-items: flex-start; gap: 16px; padding: 20px; }
+  .heroAvatar, .heroAvatarFallback { width: 56px; height: 56px; }
+  .heroHandle { font-size: 22px; }
+  .heroRight { text-align: left; }
+  .heroScore { font-size: 36px; }
+
+  .main { padding: 0 16px 40px; }
+  .platformRow { grid-template-columns: 1fr; }
+  .grid { grid-template-columns: 1fr; }
+  .card { padding: 18px; }
+}

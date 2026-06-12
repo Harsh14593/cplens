@@ -165,3 +165,19 @@
   color: #374151;
   border-top: 1px solid #1e2330;
 }
+
+@media (max-width: 768px) {
+  .nav { padding: 14px 16px; }
+  .navLinks { gap: 16px; }
+  .navLink { font-size: 13px; }
+
+  .hero { padding: 40px 16px 40px; }
+  .title { font-size: 34px; letter-spacing: -0.5px; }
+  .subtitle { font-size: 15px; }
+  .heroBadge { font-size: 10px; }
+
+  .inputRow { grid-template-columns: 1fr; }
+
+  .features { padding: 48px 16px; }
+  .featureGrid { grid-template-columns: 1fr; }
+}

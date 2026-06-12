@@ -59,8 +59,8 @@ function ContestCard({ contest }) {
     <div style={{
       background: "#0f1117", borderRadius: 12,
       border: `1px solid #1e2330`, borderLeft: `3px solid ${contest.color}`,
-      padding: "20px 24px", display: "grid",
-      gridTemplateColumns: "1fr auto", gap: 16, alignItems: "center",
+      padding: "16px 20px", display: "grid",
+      gridTemplateColumns: "1fr auto", gap: 12, alignItems: "center",
     }}>
       <div>
         {/* platform badge */}
@@ -153,7 +153,7 @@ export default function Contests() {
         </div>
       </header>
 
-      <div style={{ maxWidth: 860, margin: "0 auto", padding: "32px 40px 40px" }}>
+      <div style={{ maxWidth: 860, margin: "0 auto", padding: "clamp(16px, 4vw, 40px)" }}>
 
         {/* next up hero card */}
         {!loading && next && (

@@ -84,3 +84,19 @@
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 768px) {
+  .header { padding: 14px 16px; flex-wrap: wrap; gap: 10px; }
+  .logo { font-size: 22px; }
+  .platformBadges { gap: 8px; }
+  .badge { display: none; }
+
+  .tabs { padding: 10px 12px; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { padding: 6px 14px; font-size: 12px; white-space: nowrap; }
+
+  .main { padding: 16px; }
+  .platformRow { grid-template-columns: 1fr; }
+  .grid { grid-template-columns: 1fr; }
+  .card { padding: 18px; }
+}
