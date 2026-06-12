@@ -8,7 +8,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
 [![Firebase](https://img.shields.io/badge/Firebase-Auth+Firestore-orange?style=flat-square&logo=firebase)](https://firebase.google.com)
 
-CPLens aggregates your contest history, submission patterns, rating trends, and skill gaps from all three CP platforms into one dashboard — with an AI study plan, a global leaderboard, a friends board, goal tracking, and a shareable profile card.
+CPLens aggregates your contest history, submission patterns, rating trends, and skill gaps from all three CP platforms into one dashboard — with an AI study plan, a real-time global leaderboard, a friends board, goal tracking, head-to-head compare, and a shareable profile card.
 
 ---
 
@@ -30,28 +30,37 @@ CPLens aggregates your contest history, submission patterns, rating trends, and 
 ## Features
 
 ### Dashboard
-- **CP Score** — composite 0–3000 score weighted across CF (40%), LC (40%), CC (20%) with tier labels (Beginner → Legendary). Fair for single/dual-platform users — weights redistribute to connected platforms only.
-- **3-platform rating history** — CF contest history, LC contest history, and CC rating history charts on one page
+- **CP Score** — composite 0–3000 score weighted across CF (40%), LC (40%), CC (20%) with tier labels (Beginner → Legendary). Weights redistribute to connected platforms only, so single/dual-platform users are scored fairly.
+- **Rating history overlay** — CF contest rating trend rendered as a line chart; Compare page overlays both users on one chart
 - **GitHub-style activity heatmap** — 365-day submission grid merged across all three platforms
 - **Skill Radar** — topic accuracy across DP, Graphs, Trees, Math, Structures, Strings, Greedy, Search
 - **Problem Recommendations** — weak-tag-based suggestions from CF, LC, and CC
 - **AI Study Plan** — Gemini 2.5 Flash generates a personalized weekly plan across all active platforms, persisted in localStorage
 - **Progress Tracker** — daily Firestore snapshots with sparkline charts and all-time rating deltas
+- **Shimmer loading skeletons** — full-layout placeholder renders instantly while API data loads; header stays visible throughout
+- **Per-platform error banners** — if a handle is wrong or the API is down, an inline banner identifies which platform failed with a direct "Fix handle" shortcut
+- **Profile completion nudge** — signed-in users missing platforms see a banner listing which ones to add
 
 ### Social
-- **Global Leaderboard** — all users ranked by CP Score with podium, tier badges, and achievement pills
-- **Friends Leaderboard** — search any user by handle, add to a private friends board, see your ranked comparison
+- **Real-time global leaderboard** — all users ranked by CP Score via Firestore `onSnapshot`; updates live without refresh
+- **Friends leaderboard** — search any user by CF/LC/CC handle, add to a private friends board, see your private ranked comparison; friends stored in Firestore subcollections
+- **Head-to-Head Compare** — side-by-side stats, dual skill radar, CF rating history overlay, category win tally, shareable URL; accessible from Dashboard nav pre-filled with your handles
+- **⚔ Challenge** — one-click button copies a pre-filled Compare URL with your handles as Player A
 - **Public Profile** — shareable `/u?codeforces=handle` page, no login required
-- **Head-to-Head Compare** — side-by-side stats, dual skill radar, category win tally, shareable URL
 
 ### Progression
-- **Achievements** — 26 badges across 6 categories (streak, CF rating, CF contests, LC problems, LC percentile, CC stars, CP Score), 4 tiers (Bronze → Platinum), shown on leaderboard
+- **Achievements** — 26 badges across 6 categories (streak, CF rating, CF contests, LC problems, LC percentile, CC stars, CP Score), 4 tiers (Bronze → Platinum), locked achievements collapsible
 - **Goal Tracker** — set a target rating/score with a deadline; tracks pace (on pace / slightly behind / behind), synced to Firestore
 - **Contest Calendar** — upcoming CF, LC, and CC contests with live countdown timers and Google Calendar export
 
 ### Profile
-- **Edit handles** — update or add platforms from the dashboard without re-entering everything
+- **Edit handles** — update or add platforms from the dashboard at any time
 - **GitHub README Card** — embeddable SVG card showing your ratings and CP Score tier
+
+### Performance
+- **Frontend localStorage cache** — all API responses cached for 5 min; contest data cached for 10 min. Pages feel instant on repeat visits.
+- **Backend in-memory TTL cache** — CF, LC, CC analysis endpoints cached 5 min server-side; reduces external API load
+- **Render keep-alive** — GitHub Actions cron pings the backend every 10 min to prevent free-tier cold starts
 
 ---
 
@@ -178,6 +187,7 @@ service cloud.firestore {
 cplens/
 ├── backend/
 │   ├── main.py                   # FastAPI app, CORS, router registration
+│   ├── cache.py                  # In-memory TTL cache shared across routers
 │   ├── Procfile                  # Render deploy: uvicorn main:app
 │   ├── requirements.txt
 │   ├── routers/
@@ -200,16 +210,19 @@ cplens/
         │   └── PublicProfile.js  # Shareable public view
         ├── components/
         │   ├── CPScore.js        # Composite score, tier, ring
-        │   ├── Achievements.js   # 26 badges, 4 tiers
+        │   ├── Achievements.js   # 26 badges, 4 tiers, collapsible locked section
         │   ├── GoalTracker.js    # Deadline-based rating goals
         │   ├── StudyPlan.js      # AI-generated weekly plan
+        │   ├── Skeleton.js       # Shimmer loading skeletons for all Dashboard sections
         │   ├── ActivityHeatmap.js
         │   ├── ProgressTracker.js
         │   ├── SkillRadar.js
         │   └── PlatformCard.js
         ├── contexts/
         │   └── AuthContext.js    # Google OAuth, handle persistence
+        ├── api/
+        │   └── index.js          # Axios client with localStorage TTL cache
         └── utils/
-            ├── progress.js       # Firestore: snapshots, leaderboard, goals, friends
+            ├── progress.js       # Firestore: snapshots, leaderboard, goals, friends, onSnapshot
             └── cfColors.js       # Canonical CF rank color map
 ```
