@@ -128,7 +128,7 @@ export default function Contests() {
       .finally(() => setLoading(false));
   }, []);
 
-  const platforms = ["all", "Codeforces", "LeetCode"];
+  const platforms = ["all", "Codeforces", "LeetCode", "CodeChef"];
   const visible   = filter === "all" ? contests : contests.filter(c => c.platform === filter);
   const next      = contests[0] ?? null;
 

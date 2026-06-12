@@ -7,6 +7,7 @@ router = APIRouter()
 
 CF_API = "https://codeforces.com/api"
 LC_API = "https://leetcode.com/graphql"
+CC_API = "https://www.codechef.com/api/list/contests/all"
 
 
 async def _fetch_cf_contests():
@@ -63,9 +64,40 @@ async def _fetch_lc_contests():
         return []
 
 
+async def _fetch_cc_contests():
+    try:
+        async with httpx.AsyncClient(timeout=8) as client:
+            r = await client.get(CC_API, headers={"User-Agent": "Mozilla/5.0"})
+            data = r.json()
+        result = []
+        for c in data.get("future_contests", []):
+            try:
+                start_dt = datetime.strptime(c["contest_start_date"], "%d %b %Y %H:%M:%S")
+                start_dt = start_dt.replace(tzinfo=timezone.utc)
+                end_dt   = datetime.strptime(c["contest_end_date"],   "%d %b %Y %H:%M:%S")
+                end_dt   = end_dt.replace(tzinfo=timezone.utc)
+                duration = int((end_dt - start_dt).total_seconds())
+                result.append({
+                    "id":        c["contest_code"],
+                    "name":      c["contest_name"],
+                    "platform":  "CodeChef",
+                    "color":     "#22c55e",
+                    "startTime": int(start_dt.timestamp()),
+                    "duration":  duration,
+                    "url":       f"https://www.codechef.com/{c['contest_code']}",
+                })
+            except Exception:
+                continue
+        return result
+    except Exception:
+        return []
+
+
 @router.get("/upcoming")
 async def get_upcoming_contests():
-    cf, lc = await asyncio.gather(_fetch_cf_contests(), _fetch_lc_contests())
-    all_contests = cf + lc
+    cf, lc, cc = await asyncio.gather(
+        _fetch_cf_contests(), _fetch_lc_contests(), _fetch_cc_contests()
+    )
+    all_contests = cf + lc + cc
     all_contests.sort(key=lambda x: x["startTime"])
     return all_contests
