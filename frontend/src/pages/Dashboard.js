@@ -204,7 +204,8 @@ export default function Dashboard() {
 
   if (error) return <div className={styles.center}><p>{error}</p></div>;
 
-  if (loading) return (
+  // user===undefined = Firebase Auth hasn't resolved yet; hold skeleton until both data and auth are ready
+  if (loading || user === undefined) return (
     <div className={styles.page}>
       <header className={styles.header}>
         <h1 onClick={() => navigate("/")} className={styles.logo}>CP<span>Lens</span></h1>
