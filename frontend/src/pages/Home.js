@@ -53,6 +53,7 @@ export default function Home() {
           </button>
         </form>
         <p className={styles.hint}>Enter at least one handle to get started</p>
+        <p className={styles.hint}>or <a href="/compare" style={{ color: "#6366f1", textDecoration: "none" }}>compare two players →</a></p>
       </div>
     </div>
   );
