@@ -112,6 +112,7 @@ export default function StudyPlan({ data, user, cfHandle }) {
               <div style={{ fontSize: 11, color: "#64748b", background: "#1e2330", padding: "3px 10px", borderRadius: 99 }}>
                 {week.daily_problems} problems/day · {week.cf_difficulty}
               </div>
+
             </div>
             <div style={{ fontSize: 13, color: "#94a3b8", marginBottom: 10 }}>{week.goal}</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
