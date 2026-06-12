@@ -330,15 +330,13 @@ export default function Dashboard() {
               </div>
             )}
 
-            <div className={styles.grid} style={{ marginBottom: 8 }}>
-              <div className={styles.card}>
-                <h2>Goal Tracker</h2>
-                <GoalTracker data={data} cpScore={computeCPScore({ user: data.user, lc: data.lc, cc: data.cc })} user={user} />
-              </div>
-              <div className={styles.card}>
-                <h2>Achievements</h2>
-                <Achievements data={data} cpScore={computeCPScore({ user: data.user, lc: data.lc, cc: data.cc })} />
-              </div>
+            <div className={`${styles.card} ${styles.fullWidth}`} style={{ marginBottom: 8 }}>
+              <h2>Goal Tracker</h2>
+              <GoalTracker data={data} cpScore={computeCPScore({ user: data.user, lc: data.lc, cc: data.cc })} user={user} />
+            </div>
+            <div className={`${styles.card} ${styles.fullWidth}`} style={{ marginBottom: 8 }}>
+              <h2>Achievements</h2>
+              <Achievements data={data} cpScore={computeCPScore({ user: data.user, lc: data.lc, cc: data.cc })} />
             </div>
 
             <div className={styles.card} style={{ marginBottom: 8 }}>

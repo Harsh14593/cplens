@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 const TIER = {
   bronze:   { label: "Bronze",   color: "#cd7f32", bg: "#cd7f3218" },
@@ -80,16 +80,17 @@ export function computeAchievements({ data, cpScore }) {
 }
 
 export default function Achievements({ data, cpScore }) {
+  const [showLocked, setShowLocked] = useState(false);
   const achievements = useMemo(() => computeAchievements({ data, cpScore }), [data, cpScore]);
   const earned = achievements.filter(a => a.earned);
   const locked = achievements.filter(a => !a.earned);
 
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 20 }}>
+      {/* summary row */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
         <span style={{ fontSize: 13, fontWeight: 700, color: "#f59e0b" }}>{earned.length}</span>
         <span style={{ fontSize: 12, color: "#475569" }}>/ {achievements.length} unlocked</span>
-        {/* tier counts */}
         {["platinum","gold","silver","bronze"].map(t => {
           const count = earned.filter(a => a.tier === t).length;
           if (!count) return null;
@@ -101,19 +102,33 @@ export default function Achievements({ data, cpScore }) {
         })}
       </div>
 
-      {earned.length > 0 && (
+      {/* earned */}
+      {earned.length > 0 ? (
         <>
           <div style={{ fontSize: 11, color: "#475569", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 12 }}>Earned</div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 28 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 20 }}>
             {earned.map(a => <Badge key={a.id} a={a} />)}
           </div>
         </>
+      ) : (
+        <div style={{ color: "#475569", fontSize: 13, marginBottom: 20 }}>No achievements earned yet — keep grinding!</div>
       )}
 
-      <div style={{ fontSize: 11, color: "#475569", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 12 }}>Locked</div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-        {locked.map(a => <Badge key={a.id} a={a} locked />)}
-      </div>
+      {/* locked — collapsible */}
+      <button onClick={() => setShowLocked(s => !s)} style={{
+        background: "none", border: "none", cursor: "pointer", padding: 0,
+        fontSize: 11, color: "#475569", letterSpacing: "1px", textTransform: "uppercase",
+        display: "flex", alignItems: "center", gap: 6, marginBottom: 12,
+      }}>
+        <span>{showLocked ? "▾" : "▸"}</span>
+        Locked ({locked.length})
+      </button>
+
+      {showLocked && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {locked.map(a => <Badge key={a.id} a={a} locked />)}
+        </div>
+      )}
     </div>
   );
 }
