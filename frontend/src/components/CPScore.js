@@ -37,6 +37,7 @@ export default function CPScore({ score, user, lc, cc }) {
   const tier      = TIERS.find(t => score >= t.min) ?? TIERS[TIERS.length - 1];
   const pct       = Math.round((score / 3000) * 100);
   const breakdown = buildBreakdown({ user, lc, cc });
+  const connected = breakdown.filter(p => p.rating !== null).map(p => p.label);
 
   return (
     <div style={{
@@ -55,7 +56,8 @@ export default function CPScore({ score, user, lc, cc }) {
             <span style={{ fontSize: 20, fontWeight: 700, color: tier.color, opacity: 0.85 }}>{tier.label}</span>
           </div>
           <div style={{ marginTop: 8, fontSize: 12, color: "#475569" }}>
-            Normalized across Codeforces · LeetCode · CodeChef
+            Based on {connected.length === 1 ? connected[0] : connected.join(" · ")}
+            {connected.length < 3 && <span style={{ color: "#374151", marginLeft: 6 }}>· connect more platforms to compare</span>}
           </div>
         </div>
 
@@ -81,7 +83,7 @@ export default function CPScore({ score, user, lc, cc }) {
         How it's calculated
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {breakdown.map(({ label, color, rating, max, weight, weightLabel }) => {
+        {breakdown.filter(p => p.rating !== null).map(({ label, color, rating, max, weight, weightLabel }) => {
           const norm    = rating ? Math.min(rating, max) / max : 0;
           const contrib = Math.round(norm * weight * 3000);
           const barPct  = Math.round(norm * 100);
@@ -111,7 +113,7 @@ export default function CPScore({ score, user, lc, cc }) {
       </div>
 
       <div style={{ marginTop: 16, fontSize: 11, color: "#374151", lineHeight: 1.7 }}>
-        Score = Σ (platform_rating / platform_max × weight) × 3000 &nbsp;·&nbsp; Weights redistributed if platforms are missing
+        Score = Σ (rating / max × weight) / total_weight × 3000 &nbsp;·&nbsp; Weights redistributed across {connected.length} connected platform{connected.length !== 1 ? "s" : ""}
       </div>
     </div>
   );
