@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, getDocs, deleteDoc, query, orderBy, limit } from "firebase/firestore";
+import { collection, doc, setDoc, getDocs, deleteDoc, query, orderBy, limit, where } from "firebase/firestore";
 import { db } from "../firebase";
 
 export async function saveLeaderboardEntry(uid, { displayName, photoURL, cfHandle, lcUsername, ccUsername, cfRating, lcRating, ccRating, cpScore, tier, tierColor, achievementCount, earnedIds }) {
@@ -60,6 +60,35 @@ export async function deleteGoal(uid, goalId) {
 export async function getGoals(uid) {
   const snap = await getDocs(collection(db, "users", uid, "goals"));
   return snap.docs.map(d => d.data());
+}
+
+// friends
+export async function addFriend(uid, friendUid) {
+  await setDoc(doc(db, "users", uid, "friends", friendUid), { uid: friendUid, addedAt: new Date().toISOString() });
+}
+export async function removeFriend(uid, friendUid) {
+  await deleteDoc(doc(db, "users", uid, "friends", friendUid));
+}
+export async function getFriendUids(uid) {
+  const snap = await getDocs(collection(db, "users", uid, "friends"));
+  return new Set(snap.docs.map(d => d.id));
+}
+export async function searchLeaderboard(handle) {
+  const col = collection(db, "leaderboard");
+  const h = handle.trim();
+  const [r1, r2, r3] = await Promise.all([
+    getDocs(query(col, where("cfHandle",   "==", h))),
+    getDocs(query(col, where("lcUsername", "==", h))),
+    getDocs(query(col, where("ccUsername", "==", h))),
+  ]);
+  const seen = new Set();
+  const results = [];
+  for (const snap of [r1, r2, r3]) {
+    for (const d of snap.docs) {
+      if (!seen.has(d.id)) { seen.add(d.id); results.push({ uid: d.id, ...d.data() }); }
+    }
+  }
+  return results;
 }
 
 // delta between first and last snapshot for a field
