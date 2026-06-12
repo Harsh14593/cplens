@@ -25,6 +25,11 @@ export default function Dashboard() {
   const ccUsername = params.get("codechef");
 
   const { user, logout } = useAuth();
+
+  async function handleLogout() {
+    await logout();
+    navigate("/");
+  }
   const [data, setData] = useState({ cf: null, lc: null, cc: null, user: null, contests: null, cfRecs: null, lcRecs: null, ccRecs: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -103,7 +108,7 @@ export default function Dashboard() {
           {user && (
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: 4 }}>
               <img src={user.photoURL} alt="" style={{ width: 26, height: 26, borderRadius: "50%", border: "2px solid #2d3748" }} referrerPolicy="no-referrer" />
-              <button onClick={logout} style={{ background: "none", border: "none", color: "#64748b", fontSize: 12, cursor: "pointer" }}>Sign out</button>
+              <button onClick={handleLogout} style={{ background: "none", border: "none", color: "#64748b", fontSize: 12, cursor: "pointer" }}>Sign out</button>
             </div>
           )}
           <button onClick={shareProfile} style={{
