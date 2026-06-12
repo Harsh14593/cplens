@@ -84,7 +84,7 @@ export default function ActivityHeatmap({ cfActivity, lcActivity, ccRatingHistor
     <div>
       {/* summary row */}
       <div style={{ display: "flex", gap: 24, marginBottom: 16, alignItems: "center", flexWrap: "wrap" }}>
-        <Stat value={total} label="submissions this year" color="#39d353" />
+        <Stat value={total} label="submissions in past 365 days" color="#39d353" />
         <Stat value={streak.current} label={`day streak${streak.current > 0 ? " 🔥" : ""}`} color="#f59e0b" />
         <Stat value={streak.longest} label="longest streak" color="#6366f1" />
         <span style={{ marginLeft: "auto", fontSize: 11, color: "#374151", background: "#1e2330", border: "1px solid #2d3748", borderRadius: 99, padding: "3px 10px" }}>
