@@ -16,11 +16,13 @@ export const auth     = getAuth(app);
 export const db       = getFirestore(app);
 export const provider = new GoogleAuthProvider();
 
-// Firebase signInWithPopup has a known bug where cancelling a popup leaves
-// an internal _pendingPromise null, causing an uncaught assertion on the
-// next onAuthStateChanged event. Suppress it — it's harmless.
+// Firebase signInWithPopup bug: cancelling/completing a popup can leave
+// _pendingPromise null, causing an assertion error on onAuthStateChanged.
+// Suppress both the sync throw (error event) and async variant.
+const _isFBAssertion = (msg) => typeof msg === "string" && msg.includes("INTERNAL ASSERTION FAILED");
 window.addEventListener("unhandledrejection", (e) => {
-  if (e.reason?.message?.includes("INTERNAL ASSERTION FAILED")) {
-    e.preventDefault();
-  }
+  if (_isFBAssertion(e.reason?.message)) e.preventDefault();
+});
+window.addEventListener("error", (e) => {
+  if (_isFBAssertion(e.message) || _isFBAssertion(e.error?.message)) e.preventDefault();
 });
