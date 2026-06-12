@@ -64,90 +64,95 @@ def _build_svg(cf_handle, cf_rating, cf_rank, cf_max,
                lc_username, lc_rating, lc_solved,
                cc_username, cc_rating, cc_stars,
                cp_score, tier_name, tier_color):
+    import math
 
-    # platform row helper
-    def platform_row(y, label, label_color, val1, val1_color, val2, val2_color=""):
-        v2 = f'<text x="440" y="{y}" font-size="12" fill="{val2_color or "#64748b"}" text-anchor="end">{_esc(val2)}</text>' if val2 else ""
-        return (
-            f'<rect x="20" y="{y-13}" width="6" height="16" rx="2" fill="{label_color}"/>'
-            f'<text x="34" y="{y}" font-size="12" fill="#94a3b8">{_esc(label)}</text>'
-            f'<text x="160" y="{y}" font-size="13" font-weight="600" fill="{val1_color}">{_esc(val1)}</text>'
-            f'{v2}'
-        )
+    F  = "font-family=\"'Segoe UI',system-ui,-apple-system,sans-serif\""
+    FM = "font-family=\"'Courier New',monospace\""
 
     cf_disp  = f"{cf_rating}" if cf_rating else "—"
     cf_color = _cf_rank_color(cf_rank)
-    cf_sub   = cf_rank.title() if cf_rank else ""
+    cf_sub   = cf_rank.title() if cf_rank else "Unrated"
 
     lc_disp  = f"{round(lc_rating)}" if lc_rating else "—"
-    lc_sub   = f"{lc_solved} solved" if lc_solved else ""
+    lc_sub   = f"{lc_solved} solved" if lc_solved else "—"
 
     cc_disp  = f"{cc_rating}" if cc_rating else "—"
-    cc_sub   = cc_stars if cc_stars else ""
+    cc_sub   = cc_stars if cc_stars else "—"
 
-    # progress arc (semi-circle) — score / 3000
-    pct    = min(cp_score / 3000, 1.0)
-    radius = 38
-    cx, cy = 390, 105
-    import math
-    angle  = pct * 180  # 0-180 degrees across top
-    rad    = math.radians(180 - angle)
-    end_x  = cx + radius * math.cos(rad)
-    end_y  = cy - radius * math.sin(rad)
-    large  = 1 if pct > 0.5 else 0
-    arc_path = f"M {cx-radius} {cy} A {radius} {radius} 0 {large} 1 {end_x:.1f} {end_y:.1f}"
+    # CP Score progress bar
+    W      = 455   # card inner width (20..475)
+    bar_w  = 300
+    bar_x  = 20
+    bar_y  = 128
+    bar_h  = 10
+    filled = round(bar_w * min(cp_score / 3000, 1.0))
 
-    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="480" height="210" viewBox="0 0 480 210">
+    # stat column — everything centered on cx
+    def stat_col(cx, platform, p_color, value, val_color, sub):
+        sub_el = (f'<text x="{cx}" y="108" {F} font-size="10" fill="#4b5563"'
+                  f' text-anchor="middle">{_esc(sub)}</text>') if sub and sub != "—" else ""
+        return (
+            # colored platform label
+            f'<text x="{cx}" y="57" {F} font-size="11" font-weight="500"'
+            f' fill="{p_color}" text-anchor="middle" letter-spacing="0.3">{_esc(platform)}</text>'
+            # big value
+            f'<text x="{cx}" y="91" {F} font-size="24" font-weight="800"'
+            f' fill="{val_color}" text-anchor="middle">{_esc(value)}</text>'
+            # sub label (only if real data)
+            f'{sub_el}'
+        )
+
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="495" height="185" viewBox="0 0 495 185">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="185" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#0d1117"/>
       <stop offset="100%" stop-color="#161b22"/>
     </linearGradient>
-    <linearGradient id="arc_grad" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="{tier_color}" stop-opacity="0.4"/>
+    <linearGradient id="bar" x1="{bar_x}" y1="0" x2="{bar_x+bar_w}" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="{tier_color}" stop-opacity="0.5"/>
       <stop offset="100%" stop-color="{tier_color}"/>
     </linearGradient>
-    <clipPath id="card_clip">
-      <rect width="480" height="210" rx="12"/>
-    </clipPath>
+    <clipPath id="clip"><rect width="495" height="185" rx="12"/></clipPath>
+    <clipPath id="bar_clip"><rect x="{bar_x}" y="{bar_y}" width="{filled}" height="{bar_h}" rx="{bar_h//2}"/></clipPath>
   </defs>
 
-  <!-- background -->
-  <rect width="480" height="210" rx="12" fill="url(#bg)" clip-path="url(#card_clip)"/>
-  <rect width="480" height="210" rx="12" fill="none" stroke="{tier_color}" stroke-width="1.5" stroke-opacity="0.35"/>
+  <rect width="495" height="185" rx="12" fill="url(#bg)" clip-path="url(#clip)"/>
+  <rect width="495" height="185" rx="12" fill="none" stroke="{tier_color}" stroke-width="1" stroke-opacity="0.2"/>
+  <rect width="495" height="3" fill="{tier_color}" clip-path="url(#clip)"/>
 
-  <!-- top accent bar -->
-  <rect width="480" height="3" rx="0" fill="{tier_color}" opacity="0.7"/>
+  <!-- HEADER -->
+  <text x="20" y="27" {FM} font-size="14" font-weight="700">
+    <tspan fill="{tier_color}">CP</tspan><tspan fill="#e2e8f0">LENS</tspan>
+  </text>
+  <text x="72" y="27" {F} font-size="12" fill="#4b5563">/ {_esc(cf_handle)}</text>
+  <!-- tier badge top-right -->
+  <rect x="385" y="14" width="90" height="18" rx="9" fill="{tier_color}" opacity="0.15"/>
+  <text x="430" y="26" {F} font-size="10" font-weight="600" fill="{tier_color}" text-anchor="middle" letter-spacing="0.5">{_esc(tier_name.upper())}</text>
 
-  <!-- branding -->
-  <text x="20" y="28" font-family="monospace" font-size="13" font-weight="700" fill="{tier_color}" letter-spacing="2">CP</text>
-  <text x="40" y="28" font-family="monospace" font-size="13" font-weight="700" fill="#e2e8f0" letter-spacing="2">LENS</text>
-  <text x="80" y="28" font-size="11" fill="#475569">/ {_esc(cf_handle)}</text>
+  <line x1="20" y1="35" x2="475" y2="35" stroke="#21262d" stroke-width="1"/>
 
-  <!-- divider -->
-  <line x1="20" y1="36" x2="460" y2="36" stroke="#21262d" stroke-width="1"/>
+  <!-- STAT COLUMNS -->
+  {stat_col(96,  "Codeforces", "#3b82f6", cf_disp, cf_color,  cf_sub)}
+  <line x1="183" y1="42" x2="183" y2="118" stroke="#2d3748" stroke-width="1"/>
+  {stat_col(248, "LeetCode",   "#f59e0b", lc_disp, "#f59e0b", lc_sub)}
+  <line x1="335" y1="42" x2="335" y2="118" stroke="#2d3748" stroke-width="1"/>
+  {stat_col(400, "CodeChef",   "#a855f7", cc_disp, "#a855f7", cc_sub)}
 
-  <!-- platform rows -->
-  {platform_row(62,  "Codeforces", "#3b82f6", cf_disp,  cf_color,  cf_sub,  "#64748b")}
-  {platform_row(92,  "LeetCode",   "#f59e0b", lc_disp,  "#f59e0b", lc_sub,  "#64748b")}
-  {platform_row(122, "CodeChef",   "#a855f7", cc_disp,  "#a855f7", cc_sub,  "#64748b")}
+  <line x1="20" y1="118" x2="475" y2="118" stroke="#21262d" stroke-width="1"/>
 
-  <!-- divider -->
-  <line x1="20" y1="140" x2="460" y2="140" stroke="#21262d" stroke-width="1"/>
-
-  <!-- footer -->
-  <text x="20" y="162" font-size="11" fill="#475569">cplens.vercel.app</text>
-  <text x="20" y="180" font-size="10" fill="#30363d">Updated automatically via API</text>
-
-  <!-- CP Score arc (right side) -->
-  <!-- track -->
-  <path d="M {cx-radius} {cy} A {radius} {radius} 0 1 1 {cx+radius} {cy}" fill="none" stroke="#21262d" stroke-width="6" stroke-linecap="round"/>
-  <!-- filled -->
-  <path d="{arc_path}" fill="none" stroke="url(#arc_grad)" stroke-width="6" stroke-linecap="round"/>
+  <!-- CP SCORE BAR -->
+  <text x="20" y="{bar_y+8}" {F} font-size="10" fill="#4b5563" dominant-baseline="middle">CP SCORE</text>
+  <!-- bar track -->
+  <rect x="{bar_x+80}" y="{bar_y}" width="{bar_w-80}" height="{bar_h}" rx="{bar_h//2}" fill="#1f2937"/>
+  <!-- bar fill -->
+  <rect x="{bar_x+80}" y="{bar_y}" width="{max(0, filled-80)}" height="{bar_h}" rx="{bar_h//2}" fill="url(#bar)"/>
   <!-- score text -->
-  <text x="{cx}" y="{cy-6}" font-size="22" font-weight="800" fill="{tier_color}" text-anchor="middle">{cp_score}</text>
-  <text x="{cx}" y="{cy+12}" font-size="10" fill="#64748b" text-anchor="middle">/ 3000</text>
-  <text x="{cx}" y="{cy+28}" font-size="11" font-weight="600" fill="{tier_color}" text-anchor="middle">{_esc(tier_name)}</text>
+  <text x="385" y="{bar_y+8}" {F} font-size="13" font-weight="700" fill="{tier_color}" dominant-baseline="middle" text-anchor="start">{cp_score} <tspan fill="#4b5563" font-weight="400">/ 3000</tspan></text>
+
+  <!-- FOOTER -->
+  <line x1="20" y1="168" x2="475" y2="168" stroke="#1f2937" stroke-width="1"/>
+  <text x="20"  y="180" {F} font-size="10" fill="#30363d">cplens.vercel.app</text>
+  <text x="475" y="180" {F} font-size="10" fill="#30363d" text-anchor="end">Auto-updated · 1h cache</text>
 </svg>"""
     return svg
 
