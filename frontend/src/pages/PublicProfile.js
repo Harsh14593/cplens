@@ -9,6 +9,7 @@ import ActivityHeatmap from "../components/ActivityHeatmap";
 import LCProblemsChart from "../components/LCProblemsChart";
 import CCRatingChart from "../components/CCRatingChart";
 import RatingChart from "../components/RatingChart";
+import LCContestChart from "../components/LCContestChart";
 import styles from "./PublicProfile.module.css";
 
 function getRatingColor(r) {
@@ -179,6 +180,12 @@ export default function PublicProfile() {
             <div className={styles.card}>
               <h2>CF Rating History</h2>
               <RatingChart data={data.cf.rating_trend} />
+            </div>
+          )}
+          {data.lc?.contest_history?.length > 0 && (
+            <div className={styles.card}>
+              <h2>LC Contest History</h2>
+              <LCContestChart data={data.lc.contest_history} />
             </div>
           )}
           {data.cc?.rating_history?.length > 0 && (

@@ -351,6 +351,12 @@ export default function Dashboard() {
                   <LCContestChart data={data.lc.contest_history} />
                 </div>
               )}
+              {data.cc?.rating_history?.length > 0 && (
+                <div className={styles.card}>
+                  <h2>CC Rating History</h2>
+                  <CCRatingChart data={data.cc.rating_history} />
+                </div>
+              )}
               {data.cf?.tag_analysis && (
                 <div className={`${styles.card} ${styles.fullWidth}`}>
                   <h2>Skill Map</h2>
