@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { getLeaderboard, addFriend, removeFriend, getFriendUids, searchLeaderboard } from "../utils/progress";
+import { subscribeLeaderboard, addFriend, removeFriend, getFriendUids, searchLeaderboard } from "../utils/progress";
 import { useAuth } from "../contexts/AuthContext";
 import styles from "./Leaderboard.module.css";
 
@@ -313,9 +313,11 @@ export default function Leaderboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getLeaderboard()
-      .then(data => { setRows(data); setLoading(false); })
-      .catch(() => setLoading(false));
+    const unsub = subscribeLeaderboard(data => {
+      setRows(data);
+      setLoading(false);
+    });
+    return () => unsub();
   }, []);
 
   const showPodium = rows.length >= 3;

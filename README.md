@@ -12,6 +12,21 @@ CPLens aggregates your contest history, submission patterns, rating trends, and 
 
 ---
 
+## Preview
+
+![Dashboard](docs/dashboard.png)
+
+<details>
+<summary>More screenshots</summary>
+
+![Leaderboard](docs/leaderboard.png)
+![Contests](docs/contests.png)
+![Compare](docs/compare.png)
+
+</details>
+
+---
+
 ## Features
 
 ### Dashboard

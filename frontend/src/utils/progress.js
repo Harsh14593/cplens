@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, getDocs, deleteDoc, query, orderBy, limit, where } from "firebase/firestore";
+import { collection, doc, setDoc, getDocs, deleteDoc, query, orderBy, limit, where, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 
 export async function saveLeaderboardEntry(uid, { displayName, photoURL, cfHandle, lcUsername, ccUsername, cfRating, lcRating, ccRating, cpScore, tier, tierColor, achievementCount, earnedIds }) {
@@ -27,6 +27,15 @@ export async function getLeaderboard() {
   const rows = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
   rows.sort((a, b) => (b.cpScore ?? 0) - (a.cpScore ?? 0));
   return rows;
+}
+
+export function subscribeLeaderboard(callback) {
+  const ref = collection(db, "leaderboard");
+  return onSnapshot(ref, snap => {
+    const rows = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+    rows.sort((a, b) => (b.cpScore ?? 0) - (a.cpScore ?? 0));
+    callback(rows);
+  });
 }
 
 const today = () => new Date().toISOString().slice(0, 10); // YYYY-MM-DD

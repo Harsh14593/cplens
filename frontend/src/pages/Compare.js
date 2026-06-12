@@ -4,7 +4,7 @@ import { analyzeCodeforces, analyzeLeetcode, analyzeCodechef, getCFUser, getCFCo
 import { computeCPScore } from "../components/CPScore";
 import ActivityHeatmap from "../components/ActivityHeatmap";
 import styles from "./Compare.module.css";
-import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip, Legend, LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 import { getRatingColor } from "../utils/cfColors";
 
 const CF_BUCKETS = {
@@ -22,6 +22,16 @@ function cfBucketScore(tagStats, tags) {
   const hits = tags.filter(t => tagStats?.[t]?.attempted >= 3);
   if (!hits.length) return 0;
   return Math.round(hits.reduce((a,t) => a + tagStats[t].solved / tagStats[t].attempted, 0) / hits.length * 100);
+}
+
+function buildOverlayData(trendA, trendB) {
+  const len = Math.max(trendA?.length ?? 0, trendB?.length ?? 0);
+  if (!len) return null;
+  return Array.from({ length: len }, (_, i) => ({
+    i,
+    A: trendA?.[i]?.rating ?? null,
+    B: trendB?.[i]?.rating ?? null,
+  }));
 }
 
 async function fetchUser(cf, lc, cc) {
@@ -218,6 +228,33 @@ export default function Compare() {
             })}
           </div>
         </div>
+
+        {/* rating history overlay */}
+        {(() => {
+          const overlayData = buildOverlayData(dataA.cf?.rating_trend, dataB.cf?.rating_trend);
+          if (!overlayData) return null;
+          return (
+            <div className={styles.card} style={{ marginTop: 24 }}>
+              <h2>CF Rating History</h2>
+              <ResponsiveContainer width="100%" height={260}>
+                <LineChart data={overlayData} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#2d3748" />
+                  <XAxis dataKey="i" hide />
+                  <YAxis domain={["auto", "auto"]} tick={{ fill: "#94a3b8", fontSize: 12 }} width={40} />
+                  <Tooltip
+                    contentStyle={{ background: "#1e2330", border: "1px solid #2d3748", borderRadius: 8, fontSize: 13 }}
+                    formatter={(val, key) => [val, key === "A" ? nameA : nameB]}
+                    labelFormatter={() => ""}
+                  />
+                  <Legend formatter={v => v === "A" ? nameA : nameB} iconType="circle" iconSize={8}
+                    wrapperStyle={{ fontSize: 12, color: "#94a3b8", paddingTop: 8 }} />
+                  <Line type="monotone" dataKey="A" stroke="#6366f1" strokeWidth={2} dot={false} connectNulls />
+                  <Line type="monotone" dataKey="B" stroke="#f59e0b" strokeWidth={2} dot={false} connectNulls />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          );
+        })()}
 
         <div className={styles.grid}>
           {/* dual radar */}

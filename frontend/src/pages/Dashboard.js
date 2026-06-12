@@ -92,6 +92,7 @@ export default function Dashboard() {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [copied, setCopied]           = useState(false);
+  const [challenged, setChallenged]   = useState(false);
   const [embedCopied, setEmbedCopied] = useState(false);
   const [snapshots, setSnapshots]     = useState([]);
 
@@ -233,7 +234,16 @@ export default function Dashboard() {
         <h1 onClick={() => navigate("/")} className={styles.logo}>CP<span>Lens</span></h1>
 
         <nav className={styles.navActions}>
-          <button onClick={() => navigate("/compare")}     className={styles.navBtn} style={{ color: "#a855f7" }}>Compare</button>
+          <button onClick={() => {
+            const p = new URLSearchParams();
+            if (cfHandle)   p.set("a_cf", cfHandle);
+            if (lcUsername) p.set("a_lc", lcUsername);
+            if (ccUsername) p.set("a_cc", ccUsername);
+            navigator.clipboard.writeText(`${window.location.origin}/compare?${p.toString()}`);
+            setChallenged(true); setTimeout(() => setChallenged(false), 2000);
+          }} className={styles.navBtn} style={{ color: challenged ? "#22c55e" : "#a855f7" }}>
+            {challenged ? "✓ Copied!" : "⚔ Challenge"}
+          </button>
           <button onClick={() => navigate("/contests")}    className={styles.navBtn} style={{ color: "#22c55e" }}>Contests</button>
           <button onClick={() => navigate("/leaderboard")} className={styles.navBtn} style={{ color: "#f59e0b" }}>Leaderboard</button>
         </nav>
