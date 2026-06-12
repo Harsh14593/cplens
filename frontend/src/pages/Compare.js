@@ -59,6 +59,7 @@ export default function Compare() {
   const [dataA, setDataA]   = useState(null);
   const [dataB, setDataB]   = useState(null);
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied]   = useState(false);
 
   const hasParams = params.get("a_cf") || params.get("a_lc");
 
@@ -132,6 +133,9 @@ export default function Compare() {
     { label: "CF Contests",   a: dataA.contests?.length,              b: dataB.contests?.length,              max: 200,  colorA: "#6366f1", colorB: "#6366f1" },
   ].filter(m => m.a || m.b);
 
+  const winsA = metrics.filter(m => (m.a || 0) > (m.b || 0)).length;
+  const winsB = metrics.filter(m => (m.b || 0) > (m.a || 0)).length;
+
   // dual radar
   const radarData = Object.entries(CF_BUCKETS).map(([label, tags]) => ({
     subject: label,
@@ -144,7 +148,15 @@ export default function Compare() {
     <div className={styles.page}>
       <header className={styles.header}>
         <h1 className={styles.logo} onClick={() => navigate("/")}>CP<span>Lens</span></h1>
-        <button className={styles.newBtn} onClick={() => { setParams({}); setDataA(null); setDataB(null); }}>New Comparison</button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button className={styles.newBtn} onClick={() => {
+            navigator.clipboard.writeText(window.location.href);
+            setCopied(true); setTimeout(() => setCopied(false), 2000);
+          }} style={{ color: copied ? "#22c55e" : undefined, borderColor: copied ? "#22c55e" : undefined }}>
+            {copied ? "✓ Copied!" : "Share Battle →"}
+          </button>
+          <button className={styles.newBtn} onClick={() => { setParams({}); setDataA(null); setDataB(null); }}>New Comparison</button>
+        </div>
       </header>
 
       <main className={styles.main}>
@@ -153,7 +165,12 @@ export default function Compare() {
           <div className={styles.heroPlayer}>
             <div className={styles.heroName} style={{ color: "#6366f1" }}>{nameA}</div>
             {scoreA !== null && <div className={styles.heroScore} style={{ color: "#6366f1" }}>{scoreA}</div>}
-            <div className={styles.heroSub}>{dataA.user?.rank || dataA.lc?.contest_ranking?.topPercentage ? `Top ${dataA.lc?.contest_ranking?.topPercentage?.toFixed(1)}%` : ""}</div>
+            <div className={styles.heroSub}>{dataA.user?.rank || ""}</div>
+            {metrics.length > 0 && (
+              <div style={{ marginTop: 10, fontSize: 13, fontWeight: 700, color: winsA >= winsB ? "#6366f1" : "#475569" }}>
+                {winsA}/{metrics.length} categories
+              </div>
+            )}
           </div>
           <div className={styles.vsText}>
             {scoreA !== null && scoreB !== null && (
@@ -167,6 +184,11 @@ export default function Compare() {
             <div className={styles.heroName} style={{ color: "#f59e0b" }}>{nameB}</div>
             {scoreB !== null && <div className={styles.heroScore} style={{ color: "#f59e0b" }}>{scoreB}</div>}
             <div className={styles.heroSub}>{dataB.user?.rank || ""}</div>
+            {metrics.length > 0 && (
+              <div style={{ marginTop: 10, fontSize: 13, fontWeight: 700, color: winsB >= winsA ? "#f59e0b" : "#475569" }}>
+                {winsB}/{metrics.length} categories
+              </div>
+            )}
           </div>
         </div>
 

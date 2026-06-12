@@ -170,6 +170,13 @@ export default function Dashboard() {
               <button onClick={handleLogout} style={{ background: "none", border: "none", color: "#64748b", fontSize: 12, cursor: "pointer" }}>Sign out</button>
             </div>
           )}
+          <button onClick={() => navigate("/compare")} style={{
+            padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600,
+            cursor: "pointer", border: "1px solid #2d3748", background: "#1e2330",
+            color: "#a855f7", transition: "all 0.2s",
+          }}>
+            ⚔️ Compare
+          </button>
           <button onClick={() => navigate("/contests")} style={{
             padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600,
             cursor: "pointer", border: "1px solid #2d3748", background: "#1e2330",
