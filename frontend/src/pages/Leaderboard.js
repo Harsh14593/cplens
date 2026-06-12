@@ -119,8 +119,9 @@ export default function Leaderboard() {
       .catch(() => setLoading(false));
   }, []);
 
-  const top3   = rows.slice(0, 3);
-  const rest   = rows.slice(3);
+  const showPodium = rows.length >= 3;
+  const top3       = showPodium ? rows.slice(0, 3) : [];
+  const rest       = showPodium ? rows.slice(3) : rows;
 
   return (
     <div className={styles.page}>
@@ -142,7 +143,7 @@ export default function Leaderboard() {
           </div>
         ) : (
           <>
-            {top3.length >= 2 && (
+            {showPodium && (
               <div className={styles.podium}>
                 {PODIUM_ORDER.map(i => top3[i] ? (
                   <PodiumCard key={i} row={top3[i]} rank={i} navigate={navigate} />
@@ -153,7 +154,7 @@ export default function Leaderboard() {
             {rest.length > 0 && (
               <div className={styles.table}>
                 {rest.map((row, i) => (
-                  <TableRow key={row.uid} row={row} rank={i + 3} navigate={navigate} />
+                  <TableRow key={row.uid} row={row} rank={i + (showPodium ? 3 : 0)} navigate={navigate} />
                 ))}
               </div>
             )}
