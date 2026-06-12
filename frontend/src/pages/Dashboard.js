@@ -17,6 +17,8 @@ import ActivityHeatmap from "../components/ActivityHeatmap";
 import RecentSolved from "../components/RecentSolved";
 import styles from "./Dashboard.module.css";
 import { useAuth } from "../contexts/AuthContext";
+import ProgressTracker from "../components/ProgressTracker";
+import { saveSnapshot, getSnapshots, calcDelta } from "../utils/progress";
 
 export default function Dashboard() {
   const [params] = useSearchParams();
@@ -35,8 +37,9 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
-  const [copied, setCopied]       = useState(false);
+  const [copied, setCopied]           = useState(false);
   const [embedCopied, setEmbedCopied] = useState(false);
+  const [snapshots, setSnapshots]     = useState([]);
 
   function shareProfile() {
     const p = new URLSearchParams();
@@ -76,16 +79,32 @@ export default function Dashboard() {
           lcUsername ? getLCRecommendations(lcUsername) : Promise.resolve(null),
           ccUsername ? getCCRecommendations(ccUsername) : Promise.resolve(null),
         ]);
+        const cf   = results[0].value?.data ?? null;
+        const lc   = results[1].value?.data ?? null;
+        const cfU  = results[2].value?.data ?? null;
+        const cc   = results[5].value?.data ?? null;
         setData({
-          cf: results[0].value?.data ?? null,
-          lc: results[1].value?.data ?? null,
-          user: results[2].value?.data ?? null,
+          cf, lc,
+          user:     cfU,
           contests: results[3].value?.data ?? null,
-          cfRecs: results[4].value?.data ?? null,
-          cc: results[5].value?.data ?? null,
-          lcRecs: results[6].value?.data ?? null,
-          ccRecs: results[7].value?.data ?? null,
+          cfRecs:   results[4].value?.data ?? null,
+          cc,
+          lcRecs:   results[6].value?.data ?? null,
+          ccRecs:   results[7].value?.data ?? null,
         });
+
+        // save daily snapshot + load history if user is signed in
+        if (user) {
+          const cpScore = computeCPScore({ user: cfU, lc, cc });
+          await saveSnapshot(user.uid, {
+            cfRating: cfU?.rating ?? null,
+            lcRating: lc?.contest_ranking?.rating ?? null,
+            ccRating: cc?.rating ?? null,
+            cpScore,
+          });
+          const snaps = await getSnapshots(user.uid);
+          setSnapshots(snaps);
+        }
       } catch (e) {
         setError("Failed to fetch data. Check your handles and try again.");
       } finally {
@@ -93,6 +112,7 @@ export default function Dashboard() {
       }
     }
     fetchAll();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cfHandle, lcUsername, ccUsername]);
 
   if (loading) return (
@@ -110,11 +130,17 @@ export default function Dashboard() {
   ];
 
   const tabs = [
-    { key: "overview", label: "Overview" },
-    ...(cfHandle ? [{ key: "codeforces", label: "Codeforces" }] : []),
-    ...(lcUsername ? [{ key: "leetcode", label: "LeetCode" }] : []),
-    ...(ccUsername ? [{ key: "codechef", label: "CodeChef" }] : []),
+    { key: "overview",   label: "Overview" },
+    ...(user ? [{ key: "progress", label: "Progress" }] : []),
+    ...(cfHandle  ? [{ key: "codeforces", label: "Codeforces" }] : []),
+    ...(lcUsername ? [{ key: "leetcode",  label: "LeetCode" }]  : []),
+    ...(ccUsername ? [{ key: "codechef",  label: "CodeChef" }]  : []),
   ];
+
+  // deltas for platform card badges (all-time)
+  const cfDelta = calcDelta(snapshots, "cfRating");
+  const lcDelta = calcDelta(snapshots, "lcRating");
+  const ccDelta = calcDelta(snapshots, "ccRating");
 
   return (
     <div className={styles.page}>
@@ -184,6 +210,7 @@ export default function Dashboard() {
                 <PlatformCard
                   platform="Codeforces"
                   color="#6366f1"
+                  delta={cfDelta}
                   stats={[
                     { label: "Rating", value: data.user.rating ?? "—", color: getRatingColor(data.user.rating) },
                     { label: "Rank", value: data.user.rank ?? "—" },
@@ -196,6 +223,7 @@ export default function Dashboard() {
                 <PlatformCard
                   platform="LeetCode"
                   color="#f59e0b"
+                  delta={lcDelta}
                   stats={[
                     { label: "Contest Rating", value: Math.round(data.lc.contest_ranking.rating) },
                     { label: "Global Rank", value: `#${data.lc.contest_ranking.globalRanking?.toLocaleString()}` },
@@ -208,6 +236,7 @@ export default function Dashboard() {
                 <PlatformCard
                   platform="CodeChef"
                   color="#22c55e"
+                  delta={ccDelta}
                   stats={[
                     { label: "Rating", value: data.cc.rating ?? "—" },
                     { label: "Stars", value: data.cc.stars ?? "—" },
@@ -262,6 +291,13 @@ export default function Dashboard() {
               )}
             </div>
           </>
+        )}
+
+        {activeTab === "progress" && (
+          <div className={styles.card}>
+            <h2>Rating Progress</h2>
+            <ProgressTracker snapshots={snapshots} />
+          </div>
         )}
 
         {activeTab === "codeforces" && (
