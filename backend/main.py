@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import codeforces, leetcode, codechef, recommendations, ai, card
+from routers import codeforces, leetcode, codechef, recommendations, ai, card, contests
 from dotenv import load_dotenv
 import os
 
@@ -23,7 +23,8 @@ app.include_router(leetcode.router, prefix="/api/leetcode", tags=["LeetCode"])
 app.include_router(codechef.router, prefix="/api/codechef", tags=["CodeChef"])
 app.include_router(recommendations.router, prefix="/api/recommendations", tags=["Recommendations"])
 app.include_router(ai.router,   prefix="/api/ai",   tags=["AI"])
-app.include_router(card.router, prefix="/api/card", tags=["Card"])
+app.include_router(card.router,     prefix="/api/card",     tags=["Card"])
+app.include_router(contests.router, prefix="/api/contests", tags=["Contests"])
 
 @app.get("/")
 def root():

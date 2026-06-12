@@ -1,0 +1,71 @@
+from fastapi import APIRouter
+import httpx
+import asyncio
+from datetime import datetime, timezone
+
+router = APIRouter()
+
+CF_API = "https://codeforces.com/api"
+LC_API = "https://leetcode.com/graphql"
+
+
+async def _fetch_cf_contests():
+    try:
+        async with httpx.AsyncClient(timeout=8) as client:
+            r = await client.get(f"{CF_API}/contest.list?gym=false")
+            data = r.json()
+        if data["status"] != "OK":
+            return []
+        now = datetime.now(timezone.utc).timestamp()
+        upcoming = [c for c in data["result"] if c.get("phase") == "BEFORE"]
+        result = []
+        for c in upcoming[:10]:
+            start = c.get("startTimeSeconds")
+            if not start:
+                continue
+            result.append({
+                "id":       str(c["id"]),
+                "name":     c["name"],
+                "platform": "Codeforces",
+                "color":    "#3b82f6",
+                "startTime": start,
+                "duration": c.get("durationSeconds", 0),
+                "url":      f"https://codeforces.com/contest/{c['id']}",
+            })
+        return sorted(result, key=lambda x: x["startTime"])
+    except Exception:
+        return []
+
+
+async def _fetch_lc_contests():
+    query = """{ upcomingContests { title titleSlug startTime duration } }"""
+    try:
+        async with httpx.AsyncClient(timeout=8) as client:
+            r = await client.post(
+                LC_API,
+                json={"query": query},
+                headers={"Content-Type": "application/json", "Referer": "https://leetcode.com"},
+            )
+            contests = r.json().get("data", {}).get("upcomingContests", [])
+        result = []
+        for c in contests:
+            result.append({
+                "id":        c["titleSlug"],
+                "name":      c["title"],
+                "platform":  "LeetCode",
+                "color":     "#f59e0b",
+                "startTime": c["startTime"],
+                "duration":  c["duration"],
+                "url":       f"https://leetcode.com/contest/{c['titleSlug']}",
+            })
+        return result
+    except Exception:
+        return []
+
+
+@router.get("/upcoming")
+async def get_upcoming_contests():
+    cf, lc = await asyncio.gather(_fetch_cf_contests(), _fetch_lc_contests())
+    all_contests = cf + lc
+    all_contests.sort(key=lambda x: x["startTime"])
+    return all_contests

@@ -10,4 +10,5 @@ export const getLCRecommendations = (username) => api.get(`/api/recommendations/
 export const getCCRecommendations = (username) => api.get(`/api/recommendations/codechef/${username}`);
 export const analyzeLeetcode = (username) => api.get(`/api/leetcode/analyze/${username}`);
 export const analyzeCodechef = (username) => api.get(`/api/codechef/analyze/${username}`);
-export const getStudyPlan = (payload) => api.post(`/api/ai/study-plan`, payload);
+export const getStudyPlan        = (payload) => api.post(`/api/ai/study-plan`, payload);
+export const getUpcomingContests = ()        => api.get(`/api/contests/upcoming`);

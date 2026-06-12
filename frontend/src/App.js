@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import PublicProfile from "./pages/PublicProfile";
 import Compare from "./pages/Compare";
 import Leaderboard from "./pages/Leaderboard";
+import Contests from "./pages/Contests";
 import { AuthProvider } from "./contexts/AuthContext";
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
           <Route path="/u"           element={<PublicProfile />} />
           <Route path="/compare"     element={<Compare />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/contests"    element={<Contests />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
