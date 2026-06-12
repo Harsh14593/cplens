@@ -15,7 +15,7 @@ const FEATURES = [
 ];
 
 export default function Home() {
-  const { user, handles, login, saveHandles } = useAuth();
+  const { user, handles, login, logout, saveHandles } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm]       = useState({ codeforces: "", leetcode: "", codechef: "" });
@@ -92,6 +92,7 @@ export default function Home() {
           <div className={styles.userInfo}>
             <img src={user.photoURL} alt="" className={styles.avatar} referrerPolicy="no-referrer" />
             <span className={styles.userName}>Hey, {user.displayName?.split(" ")[0]}</span>
+            <button className={styles.switchBtn} onClick={logout}>Switch account</button>
           </div>
         ) : (
           <button className={styles.googleBtn} onClick={login}>

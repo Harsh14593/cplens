@@ -94,6 +94,8 @@
 .userInfo { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 28px; }
 .avatar   { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #2d3748; }
 .userName { font-size: 14px; color: #94a3b8; font-weight: 600; }
+.switchBtn { background: none; border: none; font-size: 12px; color: #475569; cursor: pointer; padding: 0; text-decoration: underline; }
+.switchBtn:hover { color: #94a3b8; }
 
 /* form */
 .form {
