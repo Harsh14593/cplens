@@ -27,6 +27,18 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
+  const [copied, setCopied] = useState(false);
+
+  function shareProfile() {
+    const p = new URLSearchParams();
+    if (cfHandle)   p.set("codeforces", cfHandle);
+    if (lcUsername) p.set("leetcode",   lcUsername);
+    if (ccUsername) p.set("codechef",   ccUsername);
+    const url = `${window.location.origin}/u?${p.toString()}`;
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   useEffect(() => {
     async function fetchAll() {
@@ -85,6 +97,15 @@ export default function Dashboard() {
     <div className={styles.page}>
       <header className={styles.header}>
         <h1 onClick={() => navigate("/")} className={styles.logo}>CP<span>Lens</span></h1>
+        <div className={styles.headerRight}>
+          <button onClick={shareProfile} style={{
+            padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600,
+            cursor: "pointer", border: "1px solid #2d3748", background: copied ? "#1a2e1a" : "#1e2330",
+            color: copied ? "#22c55e" : "#e2e8f0", transition: "all 0.2s",
+          }}>
+            {copied ? "✓ Link Copied!" : "Share Profile"}
+          </button>
+        </div>
         <div className={styles.platformBadges}>
           {data.user && (
             <span className={styles.badge} style={{ color: getRatingColor(data.user.rating) }}>
